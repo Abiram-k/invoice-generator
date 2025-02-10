@@ -1,7 +1,7 @@
 import InvoiceDownload from "../components/InvoiceStruct";
 
 import { useDataContext } from "../hooks/Context";
-// const sampleInvoiceData = {
+// const data = {
 //   // general
 //   invoiceNumber: "1001",
 //   invoiceDate: "09-02-2024",
@@ -14,17 +14,17 @@ import { useDataContext } from "../hooks/Context";
 //   // details description
 //   invoiceDetails: [
 //     {
-//       description: "Product 1",
-//       duty: "5%",
-//       rate: "100",
+//       description: "Security ",
+//       duty: "50",
+//       rate: "1003",
 //       amount: "105",
 //     },
-//     // {
-//     //   description: "Product 2",
-//     //   duty: "12%",
-//     //   rate: "200",
-//     //   amount: "224",
-//     // },
+//     {
+//       description: "House keeping ",
+//       duty: "123",
+//       rate: "2003",
+//       amount: "224",
+//     },
 //     // {
 //     //   description: "Product 3",
 //     //   duty: "18%",

@@ -1,5 +1,6 @@
 import { GeneralSectionProps } from "../types/invoice-types";
 
+
 const GeneralSection: React.FC<GeneralSectionProps> = ({
   formData,
   setFormData,
@@ -46,7 +47,7 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
         </div>
         <div className="col-span-2">
           <label htmlFor="companyAddress" className="block mb-1">
-            Company Address:
+          Reciever Company Address:
           </label>
           <textarea
             id="companyAddress"

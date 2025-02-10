@@ -7,9 +7,12 @@ import { IGeneralData } from "../types/invoice-types";
 import { Button } from "../components/Button";
 
 import { useDataContext } from "../hooks/Context";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function InvoiceForm() {
   const { setData } = useDataContext();
+  const [row, setRow] = useState(1);
   const [formData, setFormData] = useState<IGeneralData>({
     // general
     invoiceNumber: "",
@@ -19,14 +22,12 @@ export default function InvoiceForm() {
     gstin: "",
 
     // details description
-    invoiceDetails: [
-      {
-        description: "",
-        duty: "",
-        rate: "",
-        amount: "",
-      },
-    ],
+    invoiceDetails: Array.from({ length: row }, () => ({
+      description: "",
+      duty: "",
+      rate: "",
+      amount: "",
+    })),
 
     // tax section
     totalTaxableAmount: "",
@@ -42,11 +43,67 @@ export default function InvoiceForm() {
     totalInvoicePayable: "",
     totalInvoiceInWords: "",
   });
+  const navigate = useNavigate();
+
+  const validateForm = () => {
+    const errors = [];
+    if (!formData.invoiceDetails?.length) {
+      toast.error("Add duties (requried 1) !");
+      errors.push("details");
+    } else if (!formData.invoiceNumber) {
+      toast.error("Add Invoice number!");
+      errors.push("invoiceNumber");
+    } else if (!formData.invoiceDate) {
+      toast.error("Add Invoice Date!");
+      errors.push("invoiceDate");
+    } else if (!formData.companyAddress) {
+      toast.error("Add Reciever Company address!");
+      errors.push("invoiceName");
+    } else if (!formData.totalInvoiceInWords || !formData.totalInvoicePayable) {
+      toast.error("Add total Amount and in words");
+      errors.push("invoiceName");
+    }
+    return errors.length == 0;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     if (setData) setData(formData);
-    console.log(formData);
+    navigate("/pdf-preview");
+    // console.log(formData);
+  };
+
+  const handleAddRow = () => {
+    setFormData((prev) => ({
+      ...prev,
+      invoiceDetails: [
+        ...(prev.invoiceDetails || []),
+        {
+          description: "",
+          duty: "",
+          rate: "",
+          amount: "",
+        },
+      ],
+    }));
+    setRow((prev) => prev + 1);
+  };
+
+  const handleRemoveRow = () => {
+    if (
+      formData?.invoiceDetails?.length &&
+      formData?.invoiceDetails.length > 1
+    ) {
+      setFormData((prev) => ({
+        ...prev,
+        invoiceDetails: prev.invoiceDetails?.slice(0, -1),
+      }));
+      setRow((prev) => prev - 1);
+    }
   };
 
   return (
@@ -59,6 +116,23 @@ export default function InvoiceForm() {
 
         <GeneralSection formData={formData} setFormData={setFormData} />
         <InvoiceDetails formData={formData} setFormData={setFormData} />
+        <button
+          className=" p-1 rounded me-2 px-5 text-white bg-green-600 mb-5"
+          type="button"
+          onClick={handleAddRow}
+        >
+          Add Row
+        </button>
+        {formData.invoiceDetails?.length&&formData.invoiceDetails?.length>1 &&
+        <button
+        className=" p-1 rounded mb-5 px-5 bg-red-600 text-white "
+        type="button"
+        onClick={handleRemoveRow}
+        >
+          Delete Row
+        </button>
+        }
+
         <TaxSection formData={formData} setFormData={setFormData} />
         <TotalPayable formData={formData} setFormData={setFormData} />
 

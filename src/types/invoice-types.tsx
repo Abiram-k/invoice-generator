@@ -27,4 +27,7 @@ export interface IGeneralData {
 export interface GeneralSectionProps {
   formData: IGeneralData;
   setFormData: React.Dispatch<React.SetStateAction<IGeneralData>>;
+  handleSetRow?: React.Dispatch<React.SetStateAction<number>>;
+  row?:number
 }
+

@@ -4,6 +4,8 @@ import { GeneralSectionProps } from "../types/invoice-types";
 const InvoiceDetails: React.FC<GeneralSectionProps> = ({
   formData,
   setFormData,
+  handleSetRow,
+  row,
 }) => {
   const handleInvoiceDetailChange = (
     index: number,
@@ -22,6 +24,7 @@ const InvoiceDetails: React.FC<GeneralSectionProps> = ({
   return (
     <section className="mb-12">
       <h3 className="text-2xl font-semibold mb-6">Invoice Details</h3>
+     
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>

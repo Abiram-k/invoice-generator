@@ -15,17 +15,24 @@ import { saveAs } from "file-saver";
 import { useState } from "react";
 
 type InvoiceData = IGeneralData;
-const companyName = import.meta.env.VITE_COMPANY_NAME;
+const COMPANY_ADDR = import.meta.env.VITE_COMPANY_ADDR;
+const COMPANY_EMAIL = import.meta.env.VITE_COMPANY_EMAIL;
+const COMPANY_PHONE = import.meta.env.VITE_PHONE_NUMBER;
+const COMPANY_BANK = import.meta.env.VITE_BANK_DETAILS;
+const COMPANY_GSTIN = import.meta.env.VITE_COMPANY_GSTIN;
+const COMPANY_NAME = import.meta.env.VITE_COMPANY_NAME;
 
 const styles = StyleSheet.create({
-  page: { padding: 30, border: 1 },
+  page: { padding: 30,
+    //  border: 1
+     },
   titleSection: {
     border: 1,
   },
   title: {
     textTransform: "uppercase",
     textAlign: "center",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "extrabold",
     marginVertical: 10,
     borderBottom: 1,
@@ -35,14 +42,14 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     textTransform: "uppercase",
     textAlign: "center",
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: "extrabold",
   },
   companyAddress: {
     textAlign: "center",
-    marginLeft: 250,
+    marginLeft: 270,
     lineHeight: 1.2,
-    fontSize: 14,
+    fontSize: 12,
   },
   generalSection: {
     flexDirection: "row",
@@ -54,9 +61,11 @@ const styles = StyleSheet.create({
   leftSection: {
     padding: 10,
     width: "64%",
+    paddingBottom: 4,
   },
   rightSection: {
     padding: 10,
+    paddingBottom: 4,
 
     width: "48%",
     borderLeft: 1,
@@ -66,9 +75,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   smallTitle: {
-    fontSize: 14,
+    fontSize: 12,
     marginBottom: 5,
-    fontWeight: "bold",
+    fontWeight: "extrabold",
     paddingLeft: 0,
   },
 
@@ -84,19 +93,23 @@ const styles = StyleSheet.create({
     fontSize: 8,
     width: "48%",
     borderLeft: 1,
-    paddingVertical: 4,
+    paddingTop: 4,
+    paddingBottom: 2,
     fontWeight: "bold",
   },
   ToDetailsSectionLeft: {
     fontWeight: "bold",
     width: "64%",
-    paddingVertical: 4,
+
+    paddingTop: 4,
+    paddingBottom: 0,
     fontSize: 8,
   },
 
   // calculation Table
   calculationTable: {
     borderWidth: 1,
+    borderTopColor: "#e0e0e0",
     borderColor: "black",
     // marginVertical: 10,
   },
@@ -108,8 +121,8 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     padding: 4,
-    fontSize: 15,
-    fontWeight: "bold",
+    fontSize: 13,
+    fontWeight: "extrabold",
     borderRightWidth: 1,
     borderColor: "#e0e0e0",
     textAlign: "center",
@@ -118,10 +131,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderBottomWidth: 1,
     borderColor: "#e0e0e0",
+    display: "flex",
+    textAlign: "center",
+    justifyContent: "center",
   },
   cell: {
     padding: 4,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "normal",
     borderRightWidth: 1,
     borderColor: "#e0e0e0",
@@ -129,9 +145,9 @@ const styles = StyleSheet.create({
   },
 
   // Auth
-
   authDetails: {
     border: 1,
+    borderBottom:2,
     borderTop: "none",
     display: "flex",
     flexDirection: "row",
@@ -149,6 +165,7 @@ const styles = StyleSheet.create({
   authRight: {
     flex: 2,
     borderLeft: 1,
+    borderLeftColor:"#11111",
     display: "flex",
     flexDirection: "column",
   },
@@ -164,7 +181,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     flexDirection: "row",
     justifyContent: "space-between",
-    borderBottom: 1,
+    // borderBottom: 1,
     borderTop: 1,
     height: 60,
     fontSize: 12,
@@ -181,14 +198,14 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
       <Page style={styles.page}>
         <View style={styles.titleSection}>
           <Text style={styles.title}>TAXABLE INVOICE</Text>
-          <Text style={styles.companyName}>BLUE SKY ENTERPRICESS</Text>
-          <Text style={styles.companyAddress}>{companyName}</Text>
+          <Text style={styles.companyName}>{COMPANY_NAME}</Text>
+          <Text style={styles.companyAddress}>{COMPANY_ADDR}</Text>
         </View>
         {/* Table Header */}-{" "}
         <View style={styles.generalSection}>
           {/* Left Section */}
           <View style={styles.leftSection}>
-            <Text style={styles.text}>GSTIN: {invoiceData.gstin}</Text>
+            <Text style={styles.text}>GSTIN: {COMPANY_GSTIN}</Text>
             <Text style={styles.text}>
               Tax is payable on reverse charge (Yes/No)
             </Text>
@@ -203,9 +220,9 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
           {/* Right Section */}
           <View style={styles.rightSection}>
             <Text style={[styles.text, { textDecoration: "underline" }]}>
-              bluesky.enterprisestsr@gmail.com
+              {COMPANY_EMAIL}
             </Text>
-            <Text style={styles.text}>Phone No: 9497760030</Text>
+            <Text style={styles.text}>Phone No: {COMPANY_PHONE}</Text>
           </View>
         </View>
         {/* ToDetailsSection */}
@@ -283,11 +300,11 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               </View>
             ))
           ) : (
-            <Text>No Duties are available</Text>
+            <Text style={[{ fontSize: 12 }]}>No Duties are available</Text>
           )}
 
-          <View style={[styles.row, { paddingTop: 8 }]}>
-            <Text style={[styles.cell, { flex: 1 }]}></Text>
+          <View style={[styles.row]}>
+            <Text style={[styles.cell, { flex: 1, paddingLeft: 5 }]}></Text>
             <Text style={[styles.cell, { flex: 5, fontWeight: "bold" }]}>
               Total Taxable Amount
             </Text>
@@ -301,7 +318,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
           </View>
 
           <View style={styles.row}>
-            <Text style={[styles.cell, { flex: 1 }]}></Text>
+            <Text style={[styles.cell, { flex: 1, paddingLeft: 5 }]}></Text>
             <Text style={[styles.cell, { flex: 5, fontWeight: "bold" }]}>
               CGST
             </Text>
@@ -316,7 +333,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
           </View>
 
           <View style={styles.row}>
-            <Text style={[styles.cell, { flex: 1 }]}></Text>
+            <Text style={[styles.cell, { flex: 1, paddingLeft: 5 }]}></Text>
             <Text style={[styles.cell, { flex: 5, fontWeight: "bold" }]}>
               SGST
             </Text>
@@ -331,7 +348,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
           </View>
 
           <View style={styles.row}>
-            <Text style={[styles.cell, { flex: 1 }]}></Text>
+            <Text style={[styles.cell, { flex: 1, paddingLeft: 5 }]}></Text>
             <Text style={[styles.cell, { flex: 5, fontWeight: "bold" }]}>
               IGST
             </Text>
@@ -345,7 +362,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
             </Text>
           </View>
 
-          <View style={styles.row}>
+          <View style={[styles.row, { borderBottom: 0 }]}>
             <Text style={[styles.cell, { flex: 1 }]}></Text>
             <Text style={[styles.cell, { flex: 5, fontWeight: "bold" }]}>
               Total Invoice Amount
@@ -363,11 +380,9 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               {
                 borderTop: 1,
                 textAlign: "center",
-                // borderLeft: 0,
-                // borderRight: 0,
                 padding: 3,
                 paddingTop: 5,
-                // marginTop:3
+                fontSize: 12,
               },
             ]}
           >
@@ -376,13 +391,18 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
         </View>
         <View style={styles.authDetails}>
           <View style={styles.authLeft}>
-            <Text style={[{ fontWeight: "extrabold", fontSize: 12 }]}>
-              Bank Details:{" "}
-            </Text>
-            <Text style={[{ lineHeight: 0.8, letterSpacing: 0.4 }]}>
-              International bank, head quareters Thopupadi branch, Koyilandi,
-              Account No. 3958730945870439, IFSC Code: SIBD34985734098
-            </Text>
+            <View>
+              <Text
+                style={[
+                  { fontWeight: "extrabold", fontSize: 13, marginBottom: 2 },
+                ]}
+              >
+                Bank Details:{" "}
+              </Text>
+              <Text style={[{ lineHeight: 0.8, letterSpacing: 0.2 }]}>
+                {COMPANY_BANK}
+              </Text>
+            </View>
             <Text style={[{ alignSelf: "flex-end" }]}>
               "Certified that the pallculars given above are true and correct"
             </Text>
@@ -394,7 +414,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
             <View style={[styles.authBox, { padding: 4 }]}>
               <Text style={[{ fontSize: 12, color: "black" }]}>
                 {" "}
-                BLUE SKY ENTERPRICESS{" "}
+                {COMPANY_NAME}{" "}
               </Text>
             </View>
 
@@ -405,7 +425,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
 
             <View style={styles.signatureContainer}>
               <Text>Name: </Text>
-              <Text>BLUE SKY ENTERPRICESS</Text>
+              <Text>{COMPANY_NAME}</Text>
             </View>
           </View>
         </View>
@@ -422,7 +442,7 @@ const InvoicePreview: React.FC<{ invoiceData: InvoiceData }> = ({
   const navigate = useNavigate();
   const handleDownload = async () => {
     const blob = await pdf(<InvoicePDF invoiceData={invoiceData} />).toBlob();
-    saveAs(blob, `${fileName}.pdf`); // Custom filename: "Invoice.pdf"
+    saveAs(blob, `${fileName}.pdf`); 
   };
 
   return (
@@ -435,20 +455,22 @@ const InvoicePreview: React.FC<{ invoiceData: InvoiceData }> = ({
           ← Back to Form
         </button>
 
-        <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-5 rounded-xl shadow-md border border-gray-200">
+        <div className="flex flex-col  sm:flex-row items-center gap-4 bg-white p-5 rounded-xl shadow-md border border-gray-200">
+          <div>
           <input
             type="text"
             value={fileName}
             onChange={(e) => {
               setFileName(e.target.value);
             }}
-            placeholder="Enter file name..."
-            className=" border-1 p-2 rounde "
+            placeholder="Enter file name ..."
+            className=" border-2 p-2 rounded border-gray-300 focus:ring-blue-300 focus:border-gray-500 font-mono"
           />
+          </div>
 
           <button
             onClick={handleDownload}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 text-white bg-blue-600 px-6 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-md"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 text-white bg-red-600 px-6 py-2 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all shadow-md"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -462,11 +484,11 @@ const InvoicePreview: React.FC<{ invoiceData: InvoiceData }> = ({
                 clipRule="evenodd"
               />
             </svg>
-            <span>Save File</span>
+            <span>Save PDF</span>
           </button>
         </div>
       </div>
-      { (fileName.length == 0) ? (
+      {fileName.length == 0 ? (
         <div className="flex-1 w-full bg-white rounded-xl shadow-xl overflow-hidden">
           <PDFViewer
             style={{
@@ -480,10 +502,30 @@ const InvoicePreview: React.FC<{ invoiceData: InvoiceData }> = ({
           </PDFViewer>
         </div>
       ) : (
-        <div className="flex-1 w-full bg-white rounded-xl shadow-xl overflow-hidden flex items-center justify-center p-10">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-gray-700 text-center">
-            Save the file to enable Preview Mode !
+        <div className="flex-1 w-full bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-2xl overflow-hidden flex flex-col items-center justify-center p-8 sm:p-12 space-y-6 border border-gray-100">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 text-center leading-tight">
+            Save the file to enable{" "}
+            <span className="text-blue-600">Preview Mode</span>!
           </h1>
+
+          <button
+            onClick={() => setFileName("")}
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-50 transition-all transform hover:scale-105 active:scale-95 shadow-md"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span>Back to Preview Mode</span>
+          </button>
         </div>
       )}
     </div>
