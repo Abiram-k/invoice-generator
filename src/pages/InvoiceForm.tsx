@@ -17,6 +17,7 @@ export default function InvoiceForm() {
     // general
     invoiceNumber: "",
     invoiceDate: "",
+    invoiceType: true,
     companyAddress: "",
     email: "",
     gstin: "",
@@ -105,6 +106,12 @@ export default function InvoiceForm() {
       setRow((prev) => prev - 1);
     }
   };
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      invoiceType: event.target.value === "Monthly Wage", 
+    }));
+  };
 
   return (
     <>
@@ -112,7 +119,18 @@ export default function InvoiceForm() {
         className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg"
         onSubmit={handleSubmit}
       >
-        <h2 className="text-2xl font-bold mb-6">Invoice Form</h2>
+        <div className="flex items-center justify-between mb-6">
+      <h2 className="text-2xl font-bold">Invoice Form</h2>
+      
+      <select
+        value={formData.invoiceType ? "Monthly Wage" : "Daily Wage"} 
+        onChange={handleSelectChange}
+        className="p-2 border border-gray-300 rounded-md focus:outline-none "
+      >
+        <option value="Daily Wage">Daily Wage</option>
+        <option value="Monthly Wage">Monthly Wage</option>
+      </select>
+    </div>
 
         <GeneralSection formData={formData} setFormData={setFormData} />
         <InvoiceDetails formData={formData} setFormData={setFormData} />
@@ -123,15 +141,16 @@ export default function InvoiceForm() {
         >
           Add Row
         </button>
-        {formData.invoiceDetails?.length&&formData.invoiceDetails?.length>1 &&
-        <button
-        className=" p-1 rounded mb-5 px-5 bg-red-600 text-white "
-        type="button"
-        onClick={handleRemoveRow}
-        >
-          Delete Row
-        </button>
-        }
+        {formData.invoiceDetails?.length &&
+          formData.invoiceDetails?.length > 1 && (
+            <button
+              className=" p-1 rounded mb-5 px-5 bg-red-600 text-white "
+              type="button"
+              onClick={handleRemoveRow}
+            >
+              Delete Row
+            </button>
+          )}
 
         <TaxSection formData={formData} setFormData={setFormData} />
         <TotalPayable formData={formData} setFormData={setFormData} />

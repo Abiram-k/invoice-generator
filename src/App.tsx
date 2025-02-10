@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Toaster, toast } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import "./App.css";
 import InvoiceForm from "./pages/InvoiceForm";
 import Invoice from "./pages/Invoice";

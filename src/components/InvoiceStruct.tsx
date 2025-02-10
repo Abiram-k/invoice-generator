@@ -7,12 +7,13 @@ import {
   PDFViewer,
   pdf,
 } from "@react-pdf/renderer";
-import React from "react";
+import React, { useRef } from "react";
 
 import { IGeneralData } from "../types/invoice-types";
 import { useNavigate } from "react-router-dom";
 import { saveAs } from "file-saver";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 type InvoiceData = IGeneralData;
 const COMPANY_ADDR = import.meta.env.VITE_COMPANY_ADDR;
@@ -23,9 +24,10 @@ const COMPANY_GSTIN = import.meta.env.VITE_COMPANY_GSTIN;
 const COMPANY_NAME = import.meta.env.VITE_COMPANY_NAME;
 
 const styles = StyleSheet.create({
-  page: { padding: 30,
+  page: {
+    padding: 30,
     //  border: 1
-     },
+  },
   titleSection: {
     border: 1,
   },
@@ -147,7 +149,7 @@ const styles = StyleSheet.create({
   // Auth
   authDetails: {
     border: 1,
-    borderBottom:2,
+    borderBottom: 2,
     borderTop: "none",
     display: "flex",
     flexDirection: "row",
@@ -165,7 +167,7 @@ const styles = StyleSheet.create({
   authRight: {
     flex: 2,
     borderLeft: 1,
-    borderLeftColor:"#11111",
+    borderLeftColor: "#11111",
     display: "flex",
     flexDirection: "column",
   },
@@ -214,6 +216,12 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
             </Text>
             <Text style={styles.text}>
               Invoice Date: {invoiceData.invoiceDate}
+            </Text>
+            <Text style={styles.text}>
+              Invoice Type:{" "}
+              {invoiceData.invoiceType
+                ? "Monthly Wages [31 days]"
+                : "Daily Wages"}
             </Text>
           </View>
 
@@ -439,10 +447,17 @@ const InvoicePreview: React.FC<{ invoiceData: InvoiceData }> = ({
   invoiceData,
 }) => {
   const [fileName, setFileName] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const handleDownload = async () => {
+    if (fileName.length < 3) {
+      toast.error("Enter proper file name", { position: "top-center" });
+      inputRef.current?.focus();
+      return;
+    }
     const blob = await pdf(<InvoicePDF invoiceData={invoiceData} />).toBlob();
-    saveAs(blob, `${fileName}.pdf`); 
+    saveAs(blob, `${fileName}.pdf`);
+    toast.success("Saved successfully", { position: "top-center" });
   };
 
   return (
@@ -457,15 +472,16 @@ const InvoicePreview: React.FC<{ invoiceData: InvoiceData }> = ({
 
         <div className="flex flex-col  sm:flex-row items-center gap-4 bg-white p-5 rounded-xl shadow-md border border-gray-200">
           <div>
-          <input
-            type="text"
-            value={fileName}
-            onChange={(e) => {
-              setFileName(e.target.value);
-            }}
-            placeholder="Enter file name ..."
-            className=" border-2 p-2 rounded border-gray-300 focus:ring-blue-300 focus:border-gray-500 font-mono"
-          />
+            <input
+              ref={inputRef}
+              type="text"
+              value={fileName}
+              onChange={(e) => {
+                setFileName(e.target.value);
+              }}
+              placeholder="Enter file name ..."
+              className=" border-2 p-2 rounded border-gray-300 focus:ring-blue-300 focus:border-gray-500 font-mono"
+            />
           </div>
 
           <button

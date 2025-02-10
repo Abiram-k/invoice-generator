@@ -2,6 +2,7 @@
 export interface IGeneralData {
   invoiceNumber?: string;
   invoiceDate?: string;
+  invoiceType?:boolean;
   companyAddress?: string;
   email?: string;
   gstin?: string;

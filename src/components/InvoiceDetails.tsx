@@ -4,8 +4,6 @@ import { GeneralSectionProps } from "../types/invoice-types";
 const InvoiceDetails: React.FC<GeneralSectionProps> = ({
   formData,
   setFormData,
-  handleSetRow,
-  row,
 }) => {
   const handleInvoiceDetailChange = (
     index: number,
