@@ -8,7 +8,7 @@ export interface IGeneralData {
   gstin?: string;
   invoiceDetails?: {
     description?: string;
-    duty?: string;
+    duty?: string; 
     rate?: string;
     amount?: string;
   }[];
