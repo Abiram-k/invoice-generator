@@ -69,10 +69,10 @@ export default function InvoiceForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
+    // if (!validateForm()) {
+    //   window.scrollTo({ top: 0, behavior: "smooth" });
+    //   return;
+    // }
     if (setData) setData(formData);
     navigate("/pdf-preview");
     // console.log(formData);

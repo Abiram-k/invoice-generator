@@ -183,7 +183,8 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     flexDirection: "row",
     justifyContent: "space-between",
-    // borderBottom: 1,
+    borderBottom: 1,
+    borderBottomColor:"gray",
     borderTop: 1,
     height: 60,
     fontSize: 12,
@@ -242,7 +243,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               Details of Receiver (Billed to)
             </Text>
             <View
-              style={[{ paddingVertical: 10, paddingLeft: 4, lineHeight: 0.9 }]}
+              style={[{ paddingVertical: 6, paddingLeft: 4, lineHeight: 0.9 }]}
             >
               <Text style={styles.text}>
                 Name: {invoiceData.companyAddress}
@@ -255,7 +256,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
             >
               Details of Consignee (Shipped to)
             </Text>
-            <View style={[{ paddingVertical: 10, paddingLeft: 4 }]}>
+            <View style={[{ paddingVertical: 6, paddingLeft: 4 }]}>
               <Text style={styles.text}>Email: {invoiceData.email}</Text>
               <Text style={styles.text}>GSTIN: {invoiceData.gstin}</Text>
             </View>
@@ -388,8 +389,8 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               {
                 borderTop: 1,
                 textAlign: "center",
-                padding: 3,
-                paddingTop: 5,
+                padding: 2,
+                // paddingTop: 5,
                 fontSize: 12,
               },
             ]}
