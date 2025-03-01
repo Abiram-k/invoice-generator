@@ -25,7 +25,7 @@ const TotalPayable: React.FC<GeneralSectionProps> = ({
             Total Invoice Payable:
           </label>
           <input
-            type="number"
+            type="text"
             id="totalInvoicePayable"
             name="totalInvoicePayable"
             className="w-full px-3 py-2 border rounded font-bold"

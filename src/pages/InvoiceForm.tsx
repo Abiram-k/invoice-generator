@@ -48,23 +48,115 @@ export default function InvoiceForm() {
 
   const validateForm = () => {
     const errors = [];
+
     if (!formData.invoiceDetails?.length) {
-      toast.error("Add duties (requried 1) !");
-      errors.push("details");
-    } else if (!formData.invoiceNumber) {
-      toast.error("Add Invoice number!");
+      toast.error("Add at least one duty!");
+      errors.push("invoiceDetails");
+      return false;
+    } else {
+      let isValid = formData.invoiceDetails.every((details) => {
+        const isAnyFieldFilled =
+          (details.amount !== undefined && details.amount !== "") ||
+          (details.duty !== undefined && details.duty !== "") ||
+          (details.description !== undefined && details.description !== "") ||
+          (details.rate !== undefined && details.rate !== "");
+
+        return (
+          !isAnyFieldFilled ||
+          (details.amount &&
+            details.duty &&
+            details.description &&
+            details.rate) // Otherwise, all must be filled
+        );
+      });
+
+      if (!isValid) {
+        toast.error("Please fill all required fields in invoice details.");
+        errors.push("invoiceDetails");
+        return false;
+      }
+    }
+
+    if (!formData.invoiceNumber) {
+      toast.error("Add Invoice Number!");
       errors.push("invoiceNumber");
-    } else if (!formData.invoiceDate) {
+      return false;
+    }
+
+    if (!formData.invoiceDate) {
       toast.error("Add Invoice Date!");
       errors.push("invoiceDate");
-    } else if (!formData.companyAddress) {
-      toast.error("Add Reciever Company address!");
-      errors.push("invoiceName");
-    } else if (!formData.totalInvoiceInWords || !formData.totalInvoicePayable) {
-      toast.error("Add total Amount and in words");
-      errors.push("invoiceName");
+      return false;
     }
-    return errors.length == 0;
+
+    if (!formData.companyAddress) {
+      toast.error("Add Receiver's Company Address!");
+      errors.push("companyAddress");
+      return false;
+    }
+
+    if (!formData.totalInvoiceInWords || !formData.totalInvoicePayable) {
+      toast.error("Add total amount and its word representation!");
+      errors.push("totalInvoice");
+      return false;
+    }
+
+    if (!formData.cgstAmount) {
+      toast.error("CGST Amount is required!");
+      errors.push("Tax Error");
+      return false;
+    }
+
+    if (!formData.cgstPercentage) {
+      toast.error("CGST Percentage is required!");
+      errors.push("Tax Error");
+
+      return false;
+    }
+
+    if (!formData.sgstAmount) {
+      toast.error("SGST Amount is required!");
+      errors.push("Tax Error");
+
+      return false;
+    }
+
+    if (!formData.sgstPercentage) {
+      toast.error("SGST Percentage is required!");
+      errors.push("Tax Error");
+
+      return false;
+    }
+
+    if (!formData.igstAmount) {
+      toast.error("IGST Amount is required!");
+      errors.push("Tax Error");
+
+      return false;
+    }
+
+    if (!formData.igstPercentage) {
+      toast.error("IGST Percentage is required!");
+      errors.push("Tax Error");
+
+      return false;
+    }
+
+    if (!formData.totalTaxableAmount) {
+      toast.error("Total Taxable Amount is required!");
+      errors.push("Tax Error");
+
+      return false;
+    }
+
+    if (!formData.taxDuty) {
+      toast.error("Tax Duty is required!");
+      errors.push("Tax Error");
+
+      return false;
+    }
+
+    return errors.length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -75,7 +167,6 @@ export default function InvoiceForm() {
     }
     if (setData) setData(formData);
     navigate("/pdf-preview");
-    // console.log(formData);
   };
 
   const handleAddRow = () => {
@@ -109,7 +200,7 @@ export default function InvoiceForm() {
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData((prev) => ({
       ...prev,
-      invoiceType: event.target.value === "Monthly Wage", 
+      invoiceType: event.target.value === "Monthly Wage",
     }));
   };
 
@@ -120,17 +211,17 @@ export default function InvoiceForm() {
         onSubmit={handleSubmit}
       >
         <div className="flex items-center justify-between mb-6">
-      <h2 className="text-2xl font-bold">Invoice Form</h2>
-      
-      <select
-        value={formData.invoiceType ? "Monthly Wage" : "Daily Wage"} 
-        onChange={handleSelectChange}
-        className="p-2 border border-gray-300 rounded-md focus:outline-none "
-      >
-        <option value="Daily Wage">Daily Wage</option>
-        <option value="Monthly Wage">Monthly Wage</option>
-      </select>
-    </div>
+          <h2 className="text-2xl font-bold">Invoice Form</h2>
+
+          <select
+            value={formData.invoiceType ? "Monthly Wage" : "Daily Wage"}
+            onChange={handleSelectChange}
+            className="p-2 border border-gray-300 rounded-md focus:outline-none "
+          >
+            <option value="Daily Wage">Daily Wage</option>
+            <option value="Monthly Wage">Monthly Wage</option>
+          </select>
+        </div>
 
         <GeneralSection formData={formData} setFormData={setFormData} />
         <InvoiceDetails formData={formData} setFormData={setFormData} />
@@ -155,7 +246,7 @@ export default function InvoiceForm() {
         <TaxSection formData={formData} setFormData={setFormData} />
         <TotalPayable formData={formData} setFormData={setFormData} />
 
-        <Button />
+        <Button name="Generate Invoice" />
       </form>
     </>
   );

@@ -16,6 +16,16 @@ const InvoiceDetails: React.FC<GeneralSectionProps> = ({
     setFormData({
       ...formData,
       invoiceDetails: updatedDetails,
+      totalTaxableAmount: "",
+      taxDuty: "",
+      cgstPercentage: "",
+      cgstAmount: "",
+      sgstPercentage: "",
+      sgstAmount: "",
+      igstPercentage: "",
+      igstAmount: "",
+      totalInvoiceInWords: "",
+      totalInvoicePayable: "",
     });
   };
 
@@ -67,7 +77,7 @@ const InvoiceDetails: React.FC<GeneralSectionProps> = ({
                 </td>
                 <td className="border border-gray-300 p-2">
                   <input
-                    type="text"
+                    type="number"
                     className="w-full p-2 focus:outline-none min-h-[50px]"
                     placeholder="Enter here..."
                     value={detail.duty || ""}
