@@ -1,6 +1,5 @@
 import React from "react";
 import { GeneralSectionProps } from "../types/invoice-types";
-import { Button } from "./Button";
 
 const TaxSection: React.FC<GeneralSectionProps> = ({
   formData,
