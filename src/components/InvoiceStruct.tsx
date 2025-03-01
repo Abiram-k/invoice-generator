@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   },
   leftSection: {
     padding: 10,
-    width: "64%",
+    width: "64.5%",
     paddingBottom: 4,
   },
   rightSection: {
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   ToDetailsSectionLeft: {
     fontWeight: "bold",
-    width: "64%",
+    width: "64.5%",
 
     paddingTop: 4,
     paddingBottom: 0,
@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
   // calculation Table
   calculationTable: {
     borderWidth: 1,
+    borderTop: 0,
     borderTopColor: "#e0e0e0",
     borderColor: "black",
     // marginVertical: 10,
@@ -126,13 +127,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "extrabold",
     borderRightWidth: 1,
-    borderColor: "#e0e0e0",
+    borderBottom:1,
+    borderColor: "black",
     textAlign: "center",
   },
   row: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: "#2B2B2B",
     display: "flex",
     textAlign: "center",
     justifyContent: "center",
@@ -142,7 +144,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "normal",
     borderRightWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: "#2B2B2B",
     textAlign: "center",
   },
 
@@ -184,7 +186,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     borderBottom: 1,
-    borderBottomColor:"gray",
+    borderBottomColor: "gray",
     borderTop: 1,
     height: 60,
     fontSize: 12,
@@ -221,7 +223,9 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
             <Text style={styles.text}>
               Invoice Type:{" "}
               {invoiceData.invoiceType
-                ? "Monthly Wages [31 days]"
+                ? `Monthly Wages [${
+                    new Date().getMonth() === 2 ? 28 : 31
+                  } days]`
                 : "Daily Wages"}
             </Text>
           </View>
@@ -270,13 +274,11 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               Sr. No
             </Text>
             <Text style={[styles.tableHeader, { flex: 5 }]}>Description</Text>
-            <Text style={[styles.tableHeader, { flex: 2 }]}>Duty</Text>
+            <Text style={[styles.tableHeader, { flex: 2,borderRightColor:"black", borderRightWidth:1}]}>Duty</Text>
             <Text style={[styles.tableHeader, { flex: 2 }]}>
               Rate per Month
             </Text>
-            <Text
-              style={[styles.tableHeader, { flex: 4, borderRightWidth: 0 }]}
-            >
+            <Text style={[styles.tableHeader, { flex: 4, borderRight: 0 }]}>
               Amount
             </Text>
           </View>
@@ -303,7 +305,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
                 </Text>
                 <Text style={[styles.cell, { flex: 2 }]}>{details.duty}</Text>
                 <Text style={[styles.cell, { flex: 2 }]}>{details.rate}</Text>
-                <Text style={[styles.cell, { flex: 4, borderRightWidth: 0 }]}>
+                <Text style={[styles.cell, { flex: 4, border: 0 }]}>
                   {details.amount}
                 </Text>
               </View>
@@ -321,7 +323,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               {invoiceData.taxDuty}
             </Text>
             <Text style={[styles.cell, { flex: 2 }]}></Text>
-            <Text style={[styles.cell, { flex: 4 }]}>
+            <Text style={[styles.cell, { flex: 4, borderRight: 0 }]}>
               {invoiceData.totalTaxableAmount}
             </Text>
           </View>
@@ -335,7 +337,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               {invoiceData.cgstPercentage}
             </Text>
             <Text style={[styles.cell, { flex: 2 }]}></Text>
-            <Text style={[styles.cell, { flex: 4 }]}>
+            <Text style={[styles.cell, { flex: 4, borderRight: 0 }]}>
               {" "}
               {invoiceData.cgstAmount}
             </Text>
@@ -350,7 +352,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               {invoiceData.sgstPercentage}
             </Text>
             <Text style={[styles.cell, { flex: 2 }]}></Text>
-            <Text style={[styles.cell, { flex: 4 }]}>
+            <Text style={[styles.cell, { flex: 4, borderRight: 0 }]}>
               {" "}
               {invoiceData.sgstAmount}
             </Text>
@@ -365,20 +367,20 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               {invoiceData.igstPercentage}
             </Text>
             <Text style={[styles.cell, { flex: 2 }]}></Text>
-            <Text style={[styles.cell, { flex: 4 }]}>
+            <Text style={[styles.cell, { flex: 4, borderRight: 0 }]}>
               {" "}
               {invoiceData.igstAmount ? invoiceData.igstAmount : 0.0}
             </Text>
           </View>
 
           <View style={[styles.row, { borderBottom: 0 }]}>
-            <Text style={[styles.cell, { flex: 1 }]}></Text>
+            <Text style={[styles.cell, { flex: 1, paddingLeft: 5 }]}></Text>
             <Text style={[styles.cell, { flex: 5, fontWeight: "bold" }]}>
               Total Invoice Amount
             </Text>
             <Text style={[styles.cell, { flex: 2 }]}></Text>
             <Text style={[styles.cell, { flex: 2 }]}></Text>
-            <Text style={[styles.cell, { flex: 4 }]}>
+            <Text style={[styles.cell, { flex: 4, borderRight: 0 }]}>
               {invoiceData.totalInvoicePayable}
             </Text>
           </View>
@@ -420,7 +422,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
           <View style={styles.authRight}>
             <View style={styles.authBox}></View>
 
-            <View style={[styles.authBox, { padding: 4 }]}>
+            <View style={[styles.authBox, { padding: 4, borderBottom: 0 }]}>
               <Text style={[{ fontSize: 12, color: "black" }]}>
                 {" "}
                 {COMPANY_NAME}{" "}
@@ -432,7 +434,12 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               <Text>Authorised Signatory</Text>
             </View>
 
-            <View style={styles.signatureContainer}>
+            <View
+              style={[
+                styles.signatureContainer,
+                { padding: 4, borderBottom: 0 },
+              ]}
+            >
               <Text>Name: </Text>
               <Text>{COMPANY_NAME}</Text>
             </View>
