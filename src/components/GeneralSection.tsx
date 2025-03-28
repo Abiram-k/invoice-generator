@@ -63,7 +63,7 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
             Email (to):
           </label>
           <input
-            type="email"
+            type="text"
             id="email"
             name="email"
             className="w-full px-3 py-2 border rounded"
