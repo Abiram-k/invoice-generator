@@ -23,6 +23,25 @@ const COMPANY_BANK = import.meta.env.VITE_BANK_DETAILS;
 const COMPANY_GSTIN = import.meta.env.VITE_COMPANY_GSTIN;
 const COMPANY_NAME = import.meta.env.VITE_COMPANY_NAME;
 
+const getCurrentMonth = () => {
+  const date = new Date();
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  return monthNames[date.getMonth()];
+};
+
 const styles = StyleSheet.create({
   page: {
     padding: 30,
@@ -127,7 +146,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "extrabold",
     borderRightWidth: 1,
-    borderBottom:1,
+    borderBottom: 1,
     borderColor: "black",
     textAlign: "center",
   },
@@ -220,12 +239,13 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
             <Text style={styles.text}>
               Invoice Date: {invoiceData.invoiceDate}
             </Text>
+            {/* [${
+                    new Date().getMonth() === 2 ? 28 : 31
+                  } days] */}
             <Text style={styles.text}>
               Invoice Type:{" "}
               {invoiceData.invoiceType
-                ? `Monthly Wages [${
-                    new Date().getMonth() === 2 ? 28 : 31
-                  } days]`
+                ? `Monthly Wages [${getCurrentMonth()}]`
                 : "Daily Wages"}
             </Text>
           </View>
@@ -274,7 +294,14 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               Sr. No
             </Text>
             <Text style={[styles.tableHeader, { flex: 5 }]}>Description</Text>
-            <Text style={[styles.tableHeader, { flex: 2,borderRightColor:"black", borderRightWidth:1}]}>Duty</Text>
+            <Text
+              style={[
+                styles.tableHeader,
+                { flex: 2, borderRightColor: "black", borderRightWidth: 1 },
+              ]}
+            >
+              Duty
+            </Text>
             <Text style={[styles.tableHeader, { flex: 2 }]}>
               Rate per Month
             </Text>
