@@ -237,7 +237,9 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               Invoice Serial Number: {invoiceData.invoiceNumber}
             </Text>
             <Text style={styles.text}>
-              Invoice Date: {invoiceData.invoiceDate}
+              Invoice Date:{" "}
+              {invoiceData.invoiceDate &&
+                new Date(invoiceData.invoiceDate).toLocaleDateString("en-GB")}
             </Text>
             {/* [${
                     new Date().getMonth() === 2 ? 28 : 31
