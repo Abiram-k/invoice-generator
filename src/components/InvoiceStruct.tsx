@@ -6,6 +6,7 @@ import {
   StyleSheet,
   PDFViewer,
   pdf,
+  Image,
 } from "@react-pdf/renderer";
 import React, { useRef } from "react";
 
@@ -14,33 +15,8 @@ import { useNavigate } from "react-router-dom";
 import { saveAs } from "file-saver";
 import { useState } from "react";
 import toast from "react-hot-toast";
-
-type InvoiceData = IGeneralData;
-const COMPANY_ADDR = import.meta.env.VITE_COMPANY_ADDR;
-const COMPANY_EMAIL = import.meta.env.VITE_COMPANY_EMAIL;
-const COMPANY_PHONE = import.meta.env.VITE_PHONE_NUMBER;
-const COMPANY_BANK = import.meta.env.VITE_BANK_DETAILS;
-const COMPANY_GSTIN = import.meta.env.VITE_COMPANY_GSTIN;
-const COMPANY_NAME = import.meta.env.VITE_COMPANY_NAME;
-
-const getCurrentMonth = () => {
-  const date = new Date();
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  return monthNames[date.getMonth()];
-};
+import { getCurrentMonth } from "../utils/getCurrentMonth";
+import { useInvoiceStore } from "../store/useInvoiceStore";
 
 const styles = StyleSheet.create({
   page: {
@@ -60,15 +36,28 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
   },
   companyName: {
-    marginBottom: 4,
+    marginBottom: 2,
     textTransform: "uppercase",
     textAlign: "center",
     fontSize: 18,
     fontWeight: "extrabold",
   },
+  companyRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    margin: 10,
+    marginTop: 0,
+    marginBottom: 2,
+  },
+  companyLogo: {
+    width: 55,
+    height: 55,
+    borderRadius: 27.5
+  },
   companyAddress: {
     textAlign: "center",
-    marginLeft: 270,
+    // marginLeft: 270,
     lineHeight: 1.2,
     fontSize: 12,
   },
@@ -214,22 +203,55 @@ const styles = StyleSheet.create({
 });
 
 // Invoice PDF component
-const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
+const InvoicePDF: React.FC<{ invoiceData: IGeneralData }> = ({
   invoiceData,
 }) => {
+  const { selectedInvoiceMonth } = useInvoiceStore();
+
+  const companies = {
+    "BLUE SKY ENTERPRICESS": {
+      name: import.meta.env.VITE_COMPANY1_NAME,
+      address: import.meta.env.VITE_COMPANY1_ADDR,
+      email: import.meta.env.VITE_COMPANY1_EMAIL,
+      phone: import.meta.env.VITE_COMPANY1_PHONE,
+      bank: import.meta.env.VITE_COMPANY1_BANK,
+      gstin: import.meta.env.VITE_COMPANY1_GSTIN,
+    },
+    "RAJAGOPALAN P.V": {
+      name: import.meta.env.VITE_COMPANY2_NAME,
+      address: import.meta.env.VITE_COMPANY2_ADDR,
+      email: import.meta.env.VITE_COMPANY2_EMAIL,
+      phone: import.meta.env.VITE_COMPANY2_PHONE,
+      bank: import.meta.env.VITE_COMPANY2_BANK,
+      gstin: import.meta.env.VITE_COMPANY2_GSTIN,
+    },
+  } as const;
+
+  const selectedCompany =
+    companies[invoiceData.invoiceFromCompany as keyof typeof companies];
+
+  const selectedCompanyLogo = `${invoiceData.invoiceFromCompany}.jpg`
+
   return (
     <Document>
       <Page style={styles.page}>
         <View style={styles.titleSection}>
           <Text style={styles.title}>TAXABLE INVOICE</Text>
-          <Text style={styles.companyName}>{COMPANY_NAME}</Text>
-          <Text style={styles.companyAddress}>{COMPANY_ADDR}</Text>
+          <Text style={styles.companyName}>{selectedCompany.name}</Text>
+          <View style={styles.companyRow}>
+            <Image
+              source={{ uri: selectedCompanyLogo }}
+              style={styles.companyLogo}
+            />
+
+            <Text style={styles.companyAddress}>{selectedCompany.address}</Text>
+          </View>
         </View>
         {/* Table Header */}-{" "}
         <View style={styles.generalSection}>
           {/* Left Section */}
           <View style={styles.leftSection}>
-            <Text style={styles.text}>GSTIN: {COMPANY_GSTIN}</Text>
+            <Text style={styles.text}>GSTIN: {selectedCompany.gstin}</Text>
             <Text style={styles.text}>
               Tax is payable on reverse charge (Yes/No)
             </Text>
@@ -241,23 +263,21 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               {invoiceData.invoiceDate &&
                 new Date(invoiceData.invoiceDate).toLocaleDateString("en-GB")}
             </Text>
-            {/* [${
-                    new Date().getMonth() === 2 ? 28 : 31
-                  } days] */}
+
             <Text style={styles.text}>
               Invoice Type:{" "}
               {invoiceData.invoiceType
-                ? `Monthly Wages [${getCurrentMonth()}]`
-                : "Daily Wages"}
+                ? `Monthly Wages [${selectedInvoiceMonth || getCurrentMonth()}]`
+                : `Daily Wages [${selectedInvoiceMonth || getCurrentMonth()}]`}
             </Text>
           </View>
 
           {/* Right Section */}
           <View style={styles.rightSection}>
             <Text style={[styles.text, { textDecoration: "underline" }]}>
-              {COMPANY_EMAIL}
+              {selectedCompany.email}
             </Text>
-            <Text style={styles.text}>Phone No: {COMPANY_PHONE}</Text>
+            <Text style={styles.text}>Phone No: {selectedCompany.phone}</Text>
           </View>
         </View>
         {/* ToDetailsSection */}
@@ -440,11 +460,11 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
                 Bank Details:{" "}
               </Text>
               <Text style={[{ lineHeight: 0.8, letterSpacing: 0.2 }]}>
-                {COMPANY_BANK}
+                {selectedCompany.bank}
               </Text>
             </View>
             <Text style={[{ alignSelf: "flex-end" }]}>
-              "Certified that the pallculars given above are true and correct"
+              "Certified that the particulars given above are true and correct"
             </Text>
           </View>
 
@@ -454,7 +474,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
             <View style={[styles.authBox, { padding: 4, borderBottom: 0 }]}>
               <Text style={[{ fontSize: 12, color: "black" }]}>
                 {" "}
-                {COMPANY_NAME}{" "}
+                {selectedCompany.name}{" "}
               </Text>
             </View>
 
@@ -470,7 +490,7 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
               ]}
             >
               <Text>Name: </Text>
-              <Text>{COMPANY_NAME}</Text>
+              <Text>{selectedCompany.name}</Text>
             </View>
           </View>
         </View>
@@ -479,13 +499,14 @@ const InvoicePDF: React.FC<{ invoiceData: InvoiceData }> = ({
   );
 };
 
-// Invoice viewer component
-const InvoicePreview: React.FC<{ invoiceData: InvoiceData }> = ({
+// Enhanced Invoice viewer component
+const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
   invoiceData,
 }) => {
   const [fileName, setFileName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+
   const handleDownload = async () => {
     if (fileName.length < 3) {
       toast.error("Enter proper file name", { position: "top-center" });
@@ -498,87 +519,207 @@ const InvoicePreview: React.FC<{ invoiceData: InvoiceData }> = ({
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 p-6 space-y-6">
-      <div className="flex justify-between items-center mb-4">
-        <button
-          onClick={() => navigate("/")}
-          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-lg shadow-lg hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-30 transition-all duration-200 transform hover:scale-105 active:scale-95"
-        >
-          ← Back to Form
-        </button>
-
-        <div className="flex flex-col  sm:flex-row items-center gap-4 bg-white p-5 rounded-xl shadow-md border border-gray-200">
-          <div>
-            <input
-              ref={inputRef}
-              type="text"
-              value={fileName}
-              onChange={(e) => {
-                setFileName(e.target.value);
-              }}
-              placeholder="Enter file name ..."
-              className=" border-2 p-2 rounded border-gray-300 focus:ring-blue-300 focus:border-gray-500 font-mono"
-            />
-          </div>
-
+    <div className="flex flex-col  bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 space-y-6">
+      {/* Enhanced Header */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white p-6 rounded-2xl shadow-xl border border-gray-200 backdrop-blur-sm">
+        {/* Left side - Back button and title */}
+        <div className="flex items-center gap-4">
           <button
-            onClick={handleDownload}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 text-white bg-red-600 px-6 py-2 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all shadow-md"
+            onClick={() => navigate("/")}
+            className="group relative px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-30 transition-all duration-300 transform hover:scale-105 active:scale-95 overflow-hidden"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span>Save PDF</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+            <div className="relative flex items-center gap-2">
+              <svg
+                className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              Back to Form
+            </div>
           </button>
+
+          <div className="hidden lg:block">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+              Invoice Preview
+            </h1>
+            <p className="text-gray-500 text-sm">
+              Review and download your invoice
+            </p>
+          </div>
+        </div>
+
+        {/* Right side - Download section */}
+        <div className="w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-gradient-to-r from-gray-50 to-white p-5 rounded-xl shadow-inner border border-gray-100">
+            <div className="relative group">
+              <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">
+                File Name
+              </label>
+              <div className="relative">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={fileName}
+                  onChange={(e) => setFileName(e.target.value)}
+                  placeholder="Enter file name..."
+                  className="w-full sm:w-64 border-2 border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-gray-700 bg-white shadow-sm transition-all duration-200 hover:border-gray-300 placeholder-gray-400"
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <svg
+                    className="w-4 h-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col justify-end">
+              <div className="h-6"></div> {/* Spacer to align with input */}
+              <button
+                onClick={handleDownload}
+                className="group relative w-full sm:w-auto flex items-center justify-center gap-3 text-white bg-gradient-to-r from-red-600 to-rose-600 px-6 py-3 rounded-xl hover:from-red-700 hover:to-rose-700 focus:outline-none focus:ring-4 focus:ring-red-400 focus:ring-opacity-30 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 font-semibold overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-rose-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 group-hover:animate-bounce"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="relative">Save PDF</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-      {fileName.length == 0 ? (
-        <div className="flex-1 w-full bg-white rounded-xl shadow-xl overflow-hidden">
+
+      {/* Enhanced Content Area */}
+      {fileName.length === 0 ? (
+        <div className="flex-1 w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 relative group">
+          {/* PDF Viewer Header */}
+          <div className="bg-gradient-to-r from-gray-800 to-gray-700 p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex space-x-2">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              </div>
+              <h3 className="text-white font-medium text-sm">
+                Invoice Preview
+              </h3>
+            </div>
+            <div className="flex items-center gap-2 text-gray-300 text-xs">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              PDF Document
+            </div>
+          </div>
+
           <PDFViewer
             style={{
               width: "100%",
-              height: "100%",
+              height: "calc(100% - 60px)",
               minHeight: "500px",
+              border: "none",
             }}
-            className="rounded-lg border border-gray-200"
+            className="bg-gray-50"
           >
             <InvoicePDF invoiceData={invoiceData} />
           </PDFViewer>
         </div>
       ) : (
-        <div className="flex-1 w-full bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-2xl overflow-hidden flex flex-col items-center justify-center p-8 sm:p-12 space-y-6 border border-gray-100">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 text-center leading-tight">
-            Save the file to enable{" "}
-            <span className="text-blue-600">Preview Mode</span>!
-          </h1>
+        <div className="flex-1 w-full bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-2xl shadow-2xl overflow-hidden flex flex-col items-center justify-center p-8 sm:p-12 space-y-8 border-2 border-blue-100 relative">
+          {/* Background decoration */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200 to-indigo-200 rounded-full opacity-20 blur-3xl"></div>
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-200 to-pink-200 rounded-full opacity-20 blur-3xl"></div>
+          </div>
 
-          <button
-            onClick={() => setFileName("")}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-50 transition-all transform hover:scale-105 active:scale-95 shadow-md"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
+          {/* Content */}
+          <div className="relative text-center space-y-6">
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shadow-lg mb-4">
+              <svg
+                className="w-12 h-12 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 leading-tight">
+              Ready to Save!
+            </h1>
+
+            <p className="text-lg text-gray-600 max-w-md leading-relaxed">
+              Your invoice is ready. Save the file to enable{" "}
+              <span className="font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Preview Mode
+              </span>{" "}
+              and view the document.
+            </p>
+          </div>
+
+          <div className="relative flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={() => setFileName("")}
+              className="group relative flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl overflow-hidden"
             >
-              <path
-                fillRule="evenodd"
-                d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span>Back to Preview Mode</span>
-          </button>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 group-hover:-translate-x-1 transition-transform duration-200"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="relative">Back to Preview</span>
+            </button>
+
+            <div className="text-center text-gray-500 text-sm self-center px-4">
+              or scroll up to save the PDF
+            </div>
+          </div>
         </div>
       )}
     </div>

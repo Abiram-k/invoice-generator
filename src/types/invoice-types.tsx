@@ -1,12 +1,13 @@
 // General Info Types
 export interface IGeneralData {
+  invoiceFromCompany: InvoiceFromCompany;
   invoiceNumber?: string;
   invoiceDate?: string;
   invoiceType?:boolean;
   companyAddress?: string;
   email?: string;
   gstin?: string;
-  invoiceDetails?: {
+  invoiceDetails: {
     description?: string;
     duty?: string; 
     rate?: string;
@@ -32,3 +33,4 @@ export interface GeneralSectionProps {
   row?:number
 }
 
+export type InvoiceFromCompany =  "BLUE SKY ENTERPRICESS" | "RAJAGOPALAN P.V"
