@@ -3,7 +3,6 @@ import GeneralSection from "../components/GeneralSection";
 import InvoiceDetails from "../components/InvoiceDetails";
 import TaxSection from "../components/TaxSection";
 import TotalPayable from "../components/TotalPayable";
-import { Button } from "../components/Button";
 
 import { useDataContext } from "../hooks/Context";
 import toast from "react-hot-toast";
@@ -15,7 +14,6 @@ import { FileText } from "lucide-react";
 
 export default function InvoiceForm() {
   const { setData } = useDataContext();
-  const [row, setRow] = useState(1);
 
   //   const [formData, setFormData] = useState<IGeneralData>({
   //   // general
@@ -231,7 +229,6 @@ export default function InvoiceForm() {
         },
       ],
     });
-    setRow((prev) => prev + 1);
   };
 
   const handleRemoveRow = () => {
@@ -244,7 +241,6 @@ export default function InvoiceForm() {
       setFormData({
         invoiceDetails: updatedDetails,
       });
-      setRow((prev) => prev - 1);
     }
   };
   const handleSelectChangeInvoiceType = (

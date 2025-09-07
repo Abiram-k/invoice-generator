@@ -12,7 +12,7 @@ interface DataProviderProps {
 }
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
-  const [data, setData] = useState<IGeneralData>({});
+  const [data, setData] = useState<IGeneralData | {}>({});
 
   return (
     <DataContext.Provider value={{ data, setData }}>
