@@ -23,6 +23,7 @@ import TotalPayable from "../components/TotalPayable";
 import SectionCard from "../components/SectionCard";
 import ConfirmDialog from "../components/ConfirmDialog";
 import ThemeToggle from "../components/ThemeToggle";
+import FullscreenToggle from "../components/FullscreenToggle";
 import { Button } from "../components/Button";
 import { SelectField } from "../components/Field";
 
@@ -230,8 +231,9 @@ export default function InvoiceForm() {
                 </p>
               </div>
 
-              <div className="ml-auto">
+              <div className="ml-auto flex items-center gap-2">
                 <ThemeToggle />
+                <FullscreenToggle />
               </div>
             </div>
 
