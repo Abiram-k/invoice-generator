@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Download, FileText, Loader2 } from "lucide-react";
 import { Button } from "./Button";
 import { TextField } from "./Field";
+import ThemeToggle from "./ThemeToggle";
 import { fadeUp } from "../utils/motion";
 import { getCurrentMonth } from "../utils/getCurrentMonth";
 import { useInvoiceStore } from "../store/useInvoiceStore";
@@ -592,6 +593,10 @@ const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="sm:mb-6">
+            <ThemeToggle />
+          </div>
+
           <TextField
             id="fileName"
             ref={inputRef}

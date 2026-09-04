@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -19,6 +21,29 @@
   --color-danger-soft: #fef2f2;
 
   --radius-card: 1rem;
+}
+
+:root {
+  color-scheme: light;
+}
+
+/* Dark palette. Utilities read these variables, so only the values change. */
+.dark {
+  color-scheme: dark;
+
+  --color-surface: #0f1420;
+  --color-card: #171e2e;
+  --color-ink: #e9edf5;
+  --color-ink-soft: #c8d0e0;
+  --color-muted: #8f9aae;
+  --color-line: #27314a;
+  --color-brand: #8b8cff;
+  --color-brand-strong: #a5a6ff;
+  --color-brand-soft: #1f2740;
+  --color-positive: #34d399;
+  --color-positive-soft: #10261f;
+  --color-danger: #f87171;
+  --color-danger-soft: #2b1519;
 }
 
 body {
@@ -52,4 +77,29 @@ input[type="number"] {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Theme change is painted by the circular reveal in ThemeToggle, not by a cross fade. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+/* Fallback easing for browsers without view transitions, enabled only while toggling. */
+.theme-transition,
+.theme-transition * {
+  transition:
+    background-color 420ms cubic-bezier(0.45, 0, 0.25, 1),
+    border-color 420ms cubic-bezier(0.45, 0, 0.25, 1),
+    color 420ms cubic-bezier(0.45, 0, 0.25, 1),
+    fill 420ms cubic-bezier(0.45, 0, 0.25, 1) !important;
 }

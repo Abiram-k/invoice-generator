@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -15,6 +15,7 @@ import Footer from "./components/Footer";
 import AppToaster from "./components/AppToaster";
 import { DataProvider } from "./hooks/Context";
 import { pageTransition } from "./utils/motion";
+import { useThemeStore } from "./store/useThemeStore";
 
 // Animates a route in and out as the user moves between pages.
 const AnimatedPage = ({ children }: { children: ReactNode }) => (
@@ -64,6 +65,13 @@ const AnimatedRoutes = () => {
 };
 
 function App() {
+  const theme = useThemeStore((state) => state.theme);
+
+  // Mirrors the stored theme onto the root element so the CSS variables switch.
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
+
   return (
     <MotionConfig reducedMotion="user">
       <DataProvider>

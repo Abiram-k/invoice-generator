@@ -22,6 +22,7 @@ import TaxSection from "../components/TaxSection";
 import TotalPayable from "../components/TotalPayable";
 import SectionCard from "../components/SectionCard";
 import ConfirmDialog from "../components/ConfirmDialog";
+import ThemeToggle from "../components/ThemeToggle";
 import { Button } from "../components/Button";
 import { SelectField } from "../components/Field";
 
@@ -227,6 +228,10 @@ export default function InvoiceForm() {
                 <p className="mt-0.5 text-sm text-muted">
                   Create professional invoices with ease.
                 </p>
+              </div>
+
+              <div className="ml-auto">
+                <ThemeToggle />
               </div>
             </div>
 

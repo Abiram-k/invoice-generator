@@ -5,7 +5,7 @@ type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 type ButtonSize = "sm" | "md" | "lg";
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-brand text-white shadow-sm hover:bg-brand-strong focus-visible:ring-brand/30",
+  primary: "bg-brand text-white shadow-sm hover:bg-brand-strong focus-visible:ring-brand/30 dark:text-surface",
   secondary: "bg-card text-ink-soft border border-line shadow-sm hover:border-muted/40 focus-visible:ring-brand/20",
   danger: "bg-danger-soft text-danger border border-danger/20 hover:bg-danger hover:text-white focus-visible:ring-danger/25",
   ghost: "text-ink-soft hover:bg-brand-soft focus-visible:ring-brand/20",
