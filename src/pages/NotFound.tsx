@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FileQuestion } from "lucide-react";
 import { fadeUp, staggerContainer } from "../utils/motion";
+import NotFoundArt from "../components/illustrations/NotFoundArt";
 
 const NotFound = () => {
   const COMPANY_NAME = import.meta.env.VITE_COMPANY_NAME;
@@ -14,11 +14,8 @@ const NotFound = () => {
         animate="visible"
         className="w-full max-w-md rounded-card border border-line bg-card p-8 text-center shadow-sm"
       >
-        <motion.div
-          variants={fadeUp}
-          className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand-soft text-brand"
-        >
-          <FileQuestion className="h-7 w-7" />
+        <motion.div variants={fadeUp} className="mb-4 flex justify-center">
+          <NotFoundArt className="h-40 w-auto" />
         </motion.div>
 
         <motion.h1 variants={fadeUp} className="text-3xl font-semibold text-ink">

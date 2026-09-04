@@ -203,7 +203,7 @@ export default function InvoiceForm() {
   };
 
   return (
-    <div className="w-full px-4 py-8 sm:px-6 lg:px-10 lg:py-12">
+    <div className="w-full px-4 py-8 sm:px-6 lg:px-10 lg:py-12 xl:px-20 2xl:px-32">
       <motion.form
         variants={staggerContainer}
         initial="hidden"
@@ -214,7 +214,7 @@ export default function InvoiceForm() {
         {/* Header */}
         <motion.header
           variants={fadeUp}
-          className="rounded-card border border-line bg-card p-5 shadow-sm sm:p-7"
+          className="rounded-card border border-line bg-card/80 p-5 shadow-sm backdrop-blur-[2px] sm:p-7"
         >
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-3.5">

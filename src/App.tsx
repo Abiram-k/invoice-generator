@@ -12,6 +12,7 @@ import InvoiceForm from "./pages/InvoiceForm";
 import Invoice from "./pages/Invoice";
 import NotFound from "./pages/NotFound";
 import Footer from "./components/Footer";
+import BackgroundDecor from "./components/BackgroundDecor";
 import AppToaster from "./components/AppToaster";
 import { DataProvider } from "./hooks/Context";
 import { pageTransition } from "./utils/motion";
@@ -76,11 +77,15 @@ function App() {
     <MotionConfig reducedMotion="user">
       <DataProvider>
         <Router>
-          <div className="flex min-h-screen flex-col bg-surface">
-            <main className="flex-1">
-              <AnimatedRoutes />
-            </main>
-            <Footer />
+          <div className="relative min-h-screen">
+            <BackgroundDecor />
+
+            <div className="relative z-10 flex min-h-screen flex-col">
+              <main className="flex-1">
+                <AnimatedRoutes />
+              </main>
+              <Footer />
+            </div>
           </div>
         </Router>
         <AppToaster />

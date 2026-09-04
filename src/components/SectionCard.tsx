@@ -22,7 +22,7 @@ export const SectionCard = ({
 }: SectionCardProps) => (
   <motion.section
     variants={fadeUp}
-    className="group rounded-card border border-line bg-card p-5 shadow-sm transition-shadow duration-300 hover:shadow-md sm:p-7"
+    className="group rounded-card border border-line bg-card/80 p-5 shadow-sm backdrop-blur-[2px] transition-shadow duration-300 hover:shadow-md sm:p-7"
   >
     <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div className="flex items-center gap-3.5">
