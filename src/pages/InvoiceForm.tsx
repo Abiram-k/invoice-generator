@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   Building2,
@@ -34,12 +34,14 @@ import { useDataContext } from "../hooks/Context";
 import { Month } from "../types/month";
 import { getPreviousMonth, monthNames } from "../utils/getCurrentMonth";
 import { getTodayInputDate } from "../utils/date";
+import { getCompanyLogo } from "../utils/companyLogo";
 import { useInvoiceStore } from "../store/useInvoiceStore";
 import { fadeUp, staggerContainer } from "../utils/motion";
 
 export default function InvoiceForm() {
   const { setData } = useDataContext();
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const [failedLogo, setFailedLogo] = useState<string>();
   const {
     selectedInvoiceMonth,
     setSelectedInvoiceMonth,
@@ -55,6 +57,9 @@ export default function InvoiceForm() {
   }, [setSelectedInvoiceMonth, setFormData]);
 
   const navigate = useNavigate();
+
+  const companyLogo = getCompanyLogo(formData.invoiceFromCompany);
+  const showCompanyLogo = Boolean(companyLogo) && companyLogo !== failedLogo;
 
   const validateForm = () => {
     const errors = [];
@@ -187,15 +192,43 @@ export default function InvoiceForm() {
           <InvoiceCardArt className="pointer-events-none absolute -top-8 right-24 w-40 text-brand opacity-[0.07] sm:w-48 dark:opacity-[0.12]" />
 
           <div className="relative flex flex-col gap-6">
-            <div className="flex items-center gap-3.5">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand text-white shadow-sm">
-                <ReceiptIndianRupee className="h-5 w-5" />
-              </span>
-              <div>
-                <h1 className="text-2xl font-semibold tracking-tight text-ink">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+              <AnimatePresence mode="wait" initial={false}>
+                {showCompanyLogo ? (
+                  <motion.span
+                    key={companyLogo}
+                    initial={{ opacity: 0, scale: 0.92 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.92 }}
+                    transition={{ duration: 0.2 }}
+                    className="inline-flex shrink-0 items-center rounded-xl border border-line bg-white p-1.5 shadow-sm dark:border-white/20"
+                  >
+                    <img
+                      src={companyLogo}
+                      alt={formData.invoiceFromCompany}
+                      onError={() => setFailedLogo(companyLogo)}
+                      className="h-9 w-auto max-w-[110px] object-contain sm:h-12 sm:max-w-[180px]"
+                    />
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="fallback"
+                    initial={{ opacity: 0, scale: 0.92 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.92 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand text-white shadow-sm dark:text-surface"
+                  >
+                    <ReceiptIndianRupee className="h-5 w-5" />
+                  </motion.span>
+                )}
+              </AnimatePresence>
+
+              <div className="min-w-0">
+                <h1 className="text-xl font-semibold tracking-tight text-ink sm:text-2xl">
                   Invoice Generator
                 </h1>
-                <p className="mt-0.5 text-sm text-muted">
+                <p className="mt-0.5 hidden text-sm text-muted sm:block">
                   Create professional invoices with ease.
                 </p>
               </div>
