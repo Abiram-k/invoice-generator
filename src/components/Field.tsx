@@ -1,4 +1,5 @@
 import { ComponentPropsWithRef, ReactNode } from "react";
+import { ChevronDown } from "lucide-react";
 
 const controlClasses =
   "w-full rounded-xl border border-line bg-card px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition-colors duration-200 placeholder:text-muted/60 hover:border-muted/40 focus:border-brand focus:ring-4 focus:ring-brand/10";
@@ -115,12 +116,13 @@ export const SelectField = ({
     <div className="relative">
       <select
         id={id}
-        className={`peer ${controlClasses} cursor-pointer pr-8 ${icon ? "pl-10" : ""} ${className ?? ""}`}
+        className={`peer ${controlClasses} cursor-pointer appearance-none pr-10 ${icon ? "pl-10" : ""} ${className ?? ""}`}
         {...selectProps}
       >
         {children}
       </select>
       {icon ? <span className={iconWrapperClasses}>{icon}</span> : null}
+      <ChevronDown className="pointer-events-none absolute top-1/2 right-3.5 h-4 w-4 -translate-y-1/2 text-muted transition-colors duration-200 peer-focus:text-brand" />
     </div>
   </FieldShell>
 );
