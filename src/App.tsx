@@ -6,13 +6,13 @@ import {
   useLocation,
 } from "react-router-dom";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
-import { Toaster } from "react-hot-toast";
 
 import "./App.css";
 import InvoiceForm from "./pages/InvoiceForm";
 import Invoice from "./pages/Invoice";
 import NotFound from "./pages/NotFound";
 import Footer from "./components/Footer";
+import AppToaster from "./components/AppToaster";
 import { DataProvider } from "./hooks/Context";
 import { pageTransition } from "./utils/motion";
 
@@ -75,7 +75,7 @@ function App() {
             <Footer />
           </div>
         </Router>
-        <Toaster position="top-right" reverseOrder={false} />
+        <AppToaster />
       </DataProvider>
     </MotionConfig>
   );

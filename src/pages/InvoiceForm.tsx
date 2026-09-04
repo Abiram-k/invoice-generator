@@ -21,6 +21,7 @@ import InvoiceDetails from "../components/InvoiceDetails";
 import TaxSection from "../components/TaxSection";
 import TotalPayable from "../components/TotalPayable";
 import SectionCard from "../components/SectionCard";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { Button } from "../components/Button";
 import { SelectField } from "../components/Field";
 
@@ -33,6 +34,7 @@ import { fadeUp, staggerContainer } from "../utils/motion";
 export default function InvoiceForm() {
   const { setData } = useDataContext();
   const [selectedMonth, setSelectedMonth] = useState<Month | null>(null);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const { setSelectedInvoiceMonth, formData, setFormData, resetForm } =
     useInvoiceStore();
 
@@ -274,7 +276,7 @@ export default function InvoiceForm() {
               type="button"
               variant="ghost"
               size="sm"
-              onClick={resetForm}
+              onClick={() => setIsResetConfirmOpen(true)}
               title="Reset form"
               icon={<RotateCcw className="h-4 w-4" />}
             >
@@ -335,6 +337,16 @@ export default function InvoiceForm() {
           </Button>
         </motion.div>
       </motion.form>
+
+      <ConfirmDialog
+        open={isResetConfirmOpen}
+        title="Reset the form?"
+        message="All invoice details entered on this form will be cleared. Saved receivers are not affected."
+        icon={<RotateCcw className="h-5 w-5" />}
+        confirmLabel="Reset form"
+        onConfirm={resetForm}
+        onClose={() => setIsResetConfirmOpen(false)}
+      />
     </div>
   );
 }
