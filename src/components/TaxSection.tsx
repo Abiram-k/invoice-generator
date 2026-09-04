@@ -1,11 +1,21 @@
-import React, { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
-import { Calculator, Check, Eraser, IndianRupee, Info, Percent } from "lucide-react";
+import {
+  Calculator,
+  Check,
+  Eraser,
+  Hash,
+  IndianRupee,
+  Info,
+  Percent,
+  Receipt,
+} from "lucide-react";
 import toast from "react-hot-toast";
+
 import { useInvoiceStore } from "../store/useInvoiceStore";
-import { TextField } from "./Field";
 import { Button } from "./Button";
 import { Tooltip } from "./Tooltip";
+import PayableArt from "./illustrations/PayableArt";
 import { calculateInvoiceTotals } from "../utils/invoiceTotals";
 import { flashRing, iconPop } from "../utils/motion";
 
@@ -42,6 +52,37 @@ const formatAmount = (value?: string): string => {
   });
 };
 
+interface SummaryRowProps {
+  icon: ReactNode;
+  label: string;
+  value: string;
+  badge?: string;
+  divided?: boolean;
+}
+
+// One read only line of the tax summary.
+const SummaryRow = ({ icon, label, value, badge, divided }: SummaryRowProps) => (
+  <div
+    className={`flex items-center justify-between gap-4 py-3 ${
+      divided ? "border-t border-line" : ""
+    }`}
+  >
+    <span className="flex items-center gap-2.5 text-sm text-ink-soft">
+      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-soft text-brand">
+        {icon}
+      </span>
+      {label}
+      {badge ? (
+        <span className="rounded-full bg-brand-soft px-2 py-0.5 text-xs font-semibold text-brand tabular-nums">
+          {badge}
+        </span>
+      ) : null}
+    </span>
+
+    <span className="text-sm font-semibold text-ink tabular-nums">{value}</span>
+  </div>
+);
+
 const TaxSection = () => {
   const { formData, setFormData } = useInvoiceStore();
   const flashControls = useAnimationControls();
@@ -54,13 +95,6 @@ const TaxSection = () => {
     const timer = setTimeout(() => setJustCalculated(false), 1800);
     return () => clearTimeout(timer);
   }, [justCalculated]);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData({ [name]: value });
-  };
 
   const isGstApplied = Boolean(
     formData.cgstPercentage?.trim() ||
@@ -88,7 +122,7 @@ const TaxSection = () => {
   };
 
   // Applies the standard 9% CGST and SGST split, then refreshes every dependent total.
-  const handleAutoCalcuate = () => {
+  const handleCalculateGst = () => {
     const percentages = {
       cgstPercentage: "9",
       sgstPercentage: "9",
@@ -109,7 +143,7 @@ const TaxSection = () => {
       <div className="relative z-30 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-brand-soft/60 px-4 py-3">
         <p className="text-sm text-ink-soft">
           {isGstApplied
-            ? "GST is applied and recalculates as you edit the line items."
+            ? "GST is applied and every figure below updates as you edit the line items."
             : "No GST on this invoice yet. Apply it to add CGST and SGST to the payable total."}
         </p>
 
@@ -118,21 +152,20 @@ const TaxSection = () => {
             content={
               <>
                 <span className="mb-1.5 block text-sm font-semibold text-ink">
-                  How GST is calculated
+                  How these totals are calculated
                 </span>
-                Each line item contributes duty x rate. Those amounts add up to the
-                total taxable amount, and the duty counts add up to the tax duty.
-                Calculate GST adds CGST and SGST at 9% each of that taxable amount
-                (IGST 0%), so the payable total becomes the taxable amount plus GST.
-                Remove GST clears it and the payable falls back to the taxable amount
-                alone.
+                Every figure comes from the line items: duty x rate gives each amount,
+                those amounts add up to the taxable amount, and the duty counts add up
+                to the tax duty. Calculate GST adds CGST and SGST at 9% each of the
+                taxable amount (IGST 0%). The payable total is the taxable amount plus
+                GST, and the words follow it automatically.
               </>
             }
           >
             {(triggerProps) => (
               <button
                 type="button"
-                aria-label="How GST is calculated"
+                aria-label="How these totals are calculated"
                 className="cursor-help rounded-lg p-1.5 text-muted transition-colors duration-200 hover:bg-card hover:text-brand focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/20"
                 {...triggerProps}
               >
@@ -144,7 +177,7 @@ const TaxSection = () => {
           <Button
             type="button"
             size="sm"
-            onClick={handleAutoCalcuate}
+            onClick={handleCalculateGst}
             icon={
               <AnimatePresence mode="wait" initial={false}>
                 <motion.span
@@ -191,67 +224,56 @@ const TaxSection = () => {
         </div>
       </div>
 
-      <motion.div animate={flashControls} className="space-y-5 rounded-xl">
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {taxPairs.map(({ key, title, percentageName, amountName }) => (
-            <motion.div
-              key={key}
-              whileHover={{ y: -2 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="rounded-xl border border-line bg-surface/60 p-4"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-ink">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-soft text-brand">
-                    <Percent className="h-3.5 w-3.5" />
-                  </span>
-                  {title}
-                </h3>
-                <span className="rounded-full bg-brand-soft px-2.5 py-1 text-xs font-semibold text-brand tabular-nums">
-                  {formData[percentageName] || "0"}%
-                </span>
-              </div>
+      <motion.div
+        animate={flashControls}
+        className="grid grid-cols-1 gap-5 rounded-xl lg:grid-cols-5"
+      >
+        <div className="rounded-xl border border-line bg-surface/60 px-5 py-2 lg:col-span-3">
+          <SummaryRow
+            icon={<Hash className="h-3.5 w-3.5" />}
+            label="Tax duty"
+            value={formData.taxDuty?.trim() ? formData.taxDuty : "—"}
+          />
 
-              <p className="mt-4 text-xs font-medium tracking-wide text-muted uppercase">
-                Amount
-              </p>
-              <p className="mt-0.5 flex items-baseline gap-1 text-2xl font-semibold text-ink tabular-nums">
-                <IndianRupee className="h-4 w-4 text-muted" />
-                {formatAmount(formData[amountName])}
-              </p>
-            </motion.div>
+          <SummaryRow
+            icon={<Receipt className="h-3.5 w-3.5" />}
+            label="Taxable amount"
+            value={formatAmount(formData.totalTaxableAmount)}
+            divided
+          />
+
+          {taxPairs.map(({ key, title, percentageName, amountName }) => (
+            <SummaryRow
+              key={key}
+              icon={<Percent className="h-3.5 w-3.5" />}
+              label={title}
+              badge={`${formData[percentageName]?.trim() || "0"}%`}
+              value={formatAmount(formData[amountName])}
+              divided
+            />
           ))}
         </div>
 
-        <div className="border-t border-line pt-5">
-          <p className="mb-3 text-xs font-medium tracking-wide text-muted uppercase">
-            Calculation basis
-          </p>
+        <div className="relative flex flex-col justify-between overflow-hidden rounded-xl bg-brand p-5 text-white lg:col-span-2 dark:text-surface">
+          <PayableArt className="pointer-events-none absolute -right-6 bottom-2 w-28 opacity-15 sm:-right-4 sm:bottom-16 sm:w-40 sm:opacity-20 lg:bottom-20 lg:w-44" />
 
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <TextField
-              id="taxDuty"
-              name="taxDuty"
-              label="Tax Duty"
-              type="number"
-              min="0"
-              placeholder="0"
-              hint="Total duty count across the line items."
-              icon={<Calculator className="h-4 w-4" />}
-              value={formData.taxDuty || ""}
-              onChange={handleChange}
-            />
+          <div className="relative">
+            <p className="text-xs font-semibold tracking-wide uppercase opacity-80">
+              Total payable
+            </p>
+            <p className="mt-1.5 flex items-baseline gap-1 text-3xl font-semibold tabular-nums">
+              <IndianRupee className="h-5 w-5 opacity-80" />
+              {formatAmount(formData.totalInvoicePayable)}
+            </p>
+          </div>
 
-            <TextField
-              id="totalTaxableAmount"
-              name="totalTaxableAmount"
-              label="Total Taxable Amount"
-              placeholder="0.00"
-              hint="Sum of every line item amount."
-              icon={<IndianRupee className="h-4 w-4" />}
-              value={formData.totalTaxableAmount || ""}
-              onChange={handleChange}
-            />
+          <div className="relative mt-5 rounded-xl bg-white/15 p-3.5 dark:bg-black/15">
+            <p className="text-[11px] font-semibold tracking-wide uppercase opacity-80">
+              In words
+            </p>
+            <p className="mt-1 text-sm leading-snug font-medium">
+              {formData.totalInvoiceInWords?.trim() || "—"}
+            </p>
           </div>
         </div>
       </motion.div>

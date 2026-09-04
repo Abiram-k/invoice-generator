@@ -6,7 +6,6 @@ import {
   CalendarRange,
   FileText,
   ListChecks,
-  Percent,
   Plus,
   ReceiptIndianRupee,
   RotateCcw,
@@ -19,7 +18,6 @@ import { useNavigate } from "react-router-dom";
 import GeneralSection from "../components/GeneralSection";
 import InvoiceDetails from "../components/InvoiceDetails";
 import TaxSection from "../components/TaxSection";
-import TotalPayable from "../components/TotalPayable";
 import SectionCard from "../components/SectionCard";
 import ConfirmDialog from "../components/ConfirmDialog";
 import ThemeToggle from "../components/ThemeToggle";
@@ -289,20 +287,11 @@ export default function InvoiceForm() {
 
         <SectionCard
           step={3}
-          title="Tax Information"
-          icon={<Percent className="h-5 w-5" />}
-          description="CGST, SGST and IGST applied to the taxable amount."
+          title="Tax & Total"
+          icon={<Wallet className="h-5 w-5" />}
+          description="GST breakdown and the final payable amount, calculated from the line items."
         >
           <TaxSection />
-        </SectionCard>
-
-        <SectionCard
-          step={4}
-          title="Total Amount"
-          icon={<Wallet className="h-5 w-5" />}
-          description="Final payable amount and its word representation."
-        >
-          <TotalPayable />
         </SectionCard>
 
         <motion.div variants={fadeUp} className="flex justify-center pt-2">
