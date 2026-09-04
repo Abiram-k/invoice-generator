@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Month } from "../types/month";
-import { getCurrentMonth } from "../utils/getCurrentMonth";
+import { getPreviousMonth } from "../utils/getCurrentMonth";
+import { getTodayInputDate } from "../utils/date";
 import { IGeneralData } from "../types/invoice-types";
 
 type InvoiceStore = {
@@ -15,13 +16,13 @@ type InvoiceStore = {
 export const useInvoiceStore = create<InvoiceStore>()(
   persist(
     (set) => ({
-      selectedInvoiceMonth: getCurrentMonth(),
+      selectedInvoiceMonth: getPreviousMonth(),
       setSelectedInvoiceMonth: (selectedInvoiceMonth: Month) =>
         set({ selectedInvoiceMonth }),
       formData: {
         invoiceFromCompany: "BLUE SKY ENTERPRICESS",
         invoiceNumber: "",
-        invoiceDate: "",
+        invoiceDate: getTodayInputDate(),
         invoiceType: true,
         companyAddress: "",
         email: "",
@@ -52,7 +53,7 @@ export const useInvoiceStore = create<InvoiceStore>()(
           formData: {
             invoiceFromCompany: "BLUE SKY ENTERPRICESS",
             invoiceNumber: "",
-            invoiceDate: "",
+            invoiceDate: getTodayInputDate(),
             invoiceType: true,
             companyAddress: "",
             email: "",

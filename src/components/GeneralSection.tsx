@@ -17,7 +17,7 @@ import toast from "react-hot-toast";
 import { useInvoiceStore } from "../store/useInvoiceStore";
 import { useReceiverStore } from "../store/useReceiverStore";
 import { SelectField, TextField } from "./Field";
-import { Button } from "./Button";
+import { Menu, MenuItem } from "./Menu";
 import { ReceiverModal } from "./ReceiverModal";
 import ConfirmDialog from "./ConfirmDialog";
 import { Receiver } from "../types/receiver";
@@ -138,6 +138,39 @@ const GeneralSection = () => {
     }
   };
 
+  const receiverMenuItems: MenuItem[] = [
+    {
+      label: "Add receiver",
+      icon: <UserRoundPlus className={iconClasses} />,
+      onClick: openAddReceiver,
+    },
+    {
+      label: "Edit receiver",
+      icon: <Pencil className={iconClasses} />,
+      onClick: openEditReceiver,
+      disabled: !selectedReceiver,
+    },
+    {
+      label: "Delete receiver",
+      icon: <Trash2 className={iconClasses} />,
+      onClick: () => setIsDeleteConfirmOpen(true),
+      disabled: !selectedReceiver,
+      tone: "danger",
+    },
+    {
+      label: "Import from JSON",
+      icon: <Upload className={iconClasses} />,
+      onClick: () => fileInputRef.current?.click(),
+      separated: true,
+    },
+    {
+      label: "Export to JSON",
+      icon: <Download className={iconClasses} />,
+      onClick: handleExport,
+      disabled: !receivers.length,
+    },
+  ];
+
   return (
     <div className="space-y-5">
       <div className="rounded-xl border border-line bg-surface/60 p-4">
@@ -161,58 +194,8 @@ const GeneralSection = () => {
             ))}
           </SelectField>
 
-          <div className="flex flex-wrap gap-2 sm:pb-6">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={openAddReceiver}
-              icon={<UserRoundPlus className={iconClasses} />}
-            >
-              Add
-            </Button>
-
-            <Button
-              type="button"
-              variant="secondary"
-              className="px-3"
-              disabled={!selectedReceiver}
-              onClick={openEditReceiver}
-              aria-label="Edit selected receiver"
-              title="Edit selected receiver"
-              icon={<Pencil className={iconClasses} />}
-            />
-
-            <Button
-              type="button"
-              variant="danger"
-              className="px-3"
-              disabled={!selectedReceiver}
-              onClick={() => setIsDeleteConfirmOpen(true)}
-              aria-label="Delete selected receiver"
-              title="Delete selected receiver"
-              icon={<Trash2 className={iconClasses} />}
-            />
-
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => fileInputRef.current?.click()}
-              title="Import receivers from a JSON file"
-              icon={<Upload className={iconClasses} />}
-            >
-              Import
-            </Button>
-
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={!receivers.length}
-              onClick={handleExport}
-              title="Download saved receivers as JSON"
-              icon={<Download className={iconClasses} />}
-            >
-              Export
-            </Button>
+          <div className="sm:pb-6">
+            <Menu items={receiverMenuItems} label="Receiver actions" />
 
             <input
               ref={fileInputRef}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -27,16 +27,27 @@ import { SelectField } from "../components/Field";
 
 import { useDataContext } from "../hooks/Context";
 import { Month } from "../types/month";
-import { monthNames } from "../utils/getCurrentMonth";
+import { getPreviousMonth, monthNames } from "../utils/getCurrentMonth";
+import { getTodayInputDate } from "../utils/date";
 import { useInvoiceStore } from "../store/useInvoiceStore";
 import { fadeUp, staggerContainer } from "../utils/motion";
 
 export default function InvoiceForm() {
   const { setData } = useDataContext();
-  const [selectedMonth, setSelectedMonth] = useState<Month | null>(null);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
-  const { setSelectedInvoiceMonth, formData, setFormData, resetForm } =
-    useInvoiceStore();
+  const {
+    selectedInvoiceMonth,
+    setSelectedInvoiceMonth,
+    formData,
+    setFormData,
+    resetForm,
+  } = useInvoiceStore();
+
+  // Every visit starts on the previous billing month and today's invoice date.
+  useEffect(() => {
+    setSelectedInvoiceMonth(getPreviousMonth());
+    setFormData({ invoiceDate: getTodayInputDate() });
+  }, [setSelectedInvoiceMonth, setFormData]);
 
   const navigate = useNavigate();
 
@@ -187,9 +198,7 @@ export default function InvoiceForm() {
   const handleSelectChangeMonth = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    const selectedMonth: Month = event.target.value as Month;
-    setSelectedMonth(selectedMonth);
-    setSelectedInvoiceMonth(selectedMonth); // to zustand store
+    setSelectedInvoiceMonth(event.target.value as Month);
   };
 
   return (
@@ -252,7 +261,7 @@ export default function InvoiceForm() {
                 id="invoiceMonth"
                 label="Month"
                 icon={<CalendarRange className="h-4 w-4" />}
-                value={selectedMonth || ""}
+                value={selectedInvoiceMonth || ""}
                 onChange={handleSelectChangeMonth}
               >
                 <option value="">Select Month</option>
