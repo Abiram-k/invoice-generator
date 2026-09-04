@@ -1,136 +1,171 @@
+import { AnimatePresence, motion } from "framer-motion";
+import { Calculator, Hash, IndianRupee, Trash2 } from "lucide-react";
 import { useInvoiceStore } from "../store/useInvoiceStore";
+import { TextField, TextareaField } from "./Field";
+import { listItem } from "../utils/motion";
+
+const rowGrid =
+  "grid grid-cols-1 gap-4 md:grid-cols-[2.5rem_minmax(0,2.4fr)_1fr_1fr_1fr_2.5rem] md:items-start md:gap-3";
+
+const clearedTotals = {
+  totalTaxableAmount: "",
+  taxDuty: "",
+  cgstPercentage: "",
+  cgstAmount: "",
+  sgstPercentage: "",
+  sgstAmount: "",
+  igstPercentage: "",
+  igstAmount: "",
+  totalInvoiceInWords: "",
+  totalInvoicePayable: "",
+};
+
+const mobileLabel = "mb-1.5 block text-xs font-medium text-muted md:sr-only";
 
 const InvoiceDetails = () => {
   const { formData, setFormData } = useInvoiceStore();
+  const rows = formData.invoiceDetails ?? [];
 
   const handleInvoiceDetailChange = (
     index: number,
     field: string,
-    value: string | number
+    value: string
   ) => {
-    const updatedDetails = formData.invoiceDetails?.map((detail, i) => {
-      if (i === index) {
-        const updatedDetail = { ...detail, [field]: value };
+    const updatedDetails = rows.map((detail, i) => {
+      if (i !== index) return detail;
 
-        // Auto-calculate amount if qty & rate are available
-        const qty = Number(updatedDetail.duty) || 0;
-        const rate = Number(updatedDetail.rate) || 0;
+      const updatedDetail = { ...detail, [field]: value };
+      const qty = Number(updatedDetail.duty) || 0;
+      const rate = Number(updatedDetail.rate) || 0;
+      updatedDetail.amount = String(qty * rate);
 
-        updatedDetail.amount = String(qty * rate);
-
-        return updatedDetail;
-      }
-      return detail;
+      return updatedDetail;
     });
 
+    setFormData({ invoiceDetails: updatedDetails, ...clearedTotals });
+  };
+
+  // Removes a single line item and clears the totals that depended on it.
+  const handleRemoveRow = (index: number) => {
+    if (rows.length <= 1) return;
 
     setFormData({
-      ...formData,
-      invoiceDetails: updatedDetails,
-      totalTaxableAmount: "",
-      taxDuty: "",
-      cgstPercentage: "",
-      cgstAmount: "",
-      sgstPercentage: "",
-      sgstAmount: "",
-      igstPercentage: "",
-      igstAmount: "",
-      totalInvoiceInWords: "",
-      totalInvoicePayable: "",
+      invoiceDetails: rows.filter((_, i) => i !== index),
+      ...clearedTotals,
     });
   };
 
   return (
-    <section className="mb-12">
-      <h3 className="text-2xl font-semibold mb-6 text-gray-800">
-        Invoice Details
-      </h3>
-
-      <div className="overflow-x-auto rounded-lg shadow-sm border border-gray-200">
-        <table className="w-full border-collapse min-w-[600px]">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border border-gray-300 p-3 text-left w-1/12">
-                Sr. No.
-              </th>
-              <th className="border border-gray-300 p-3 text-left w-5/12">
-                Description
-              </th>
-              <th className="border border-gray-300 p-3 text-left w-2/12">
-                Duty
-              </th>
-              <th className="border border-gray-300 p-3 text-left w-2/12">
-                Rate
-              </th>
-              <th className="border border-gray-300 p-3 text-left w-2/12">
-                Amount
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {formData.invoiceDetails?.map((detail, index) => (
-              <tr key={index} className="hover:bg-gray-50 transition">
-                <td className="border border-gray-300 p-2 text-center">
-                  {index + 1}
-                </td>
-
-                <td className="border border-gray-300 p-2">
-                  <textarea
-                    className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[50px] resize-y transition"
-                    placeholder="Enter here..."
-                    rows={2}
-                    value={detail.description || ""}
-                    onChange={(e) =>
-                      handleInvoiceDetailChange(
-                        index,
-                        "description",
-                        e.target.value
-                      )
-                    }
-                  ></textarea>
-                </td>
-
-                <td className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[50px] transition"
-                    placeholder="Enter here..."
-                    value={detail.duty || ""}
-                    onChange={(e) =>
-                      handleInvoiceDetailChange(index, "duty", e.target.value)
-                    }
-                  />
-                </td>
-
-                <td className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[50px] transition"
-                    placeholder="Enter here..."
-                    value={detail.rate || ""}
-                    onChange={(e) =>
-                      handleInvoiceDetailChange(index, "rate", e.target.value)
-                    }
-                  />
-                </td>
-
-                <td className="border border-gray-300 p-2">
-                  <input
-                    type="number"
-                    className="w-full p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[50px] transition"
-                    placeholder="Enter here..."
-                    value={detail.amount || ""}
-                    onChange={(e) =>
-                      handleInvoiceDetailChange(index, "amount", e.target.value)
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="space-y-3">
+      {/* Column headers, desktop only. Each field keeps its own label for smaller screens. */}
+      <div className={`${rowGrid} hidden px-3 pb-1 text-xs font-medium tracking-wide text-muted uppercase md:grid`}>
+        <span>#</span>
+        <span>Description</span>
+        <span>Duty</span>
+        <span>Rate</span>
+        <span>Amount</span>
+        <span className="sr-only">Actions</span>
       </div>
-    </section>
+
+      <AnimatePresence initial={false}>
+        {rows.map((detail, index) => (
+          <motion.div
+            key={index}
+            layout
+            variants={listItem}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className={`${rowGrid} rounded-xl border border-line bg-surface/60 p-3 transition-colors duration-200 hover:border-muted/30`}
+          >
+            <span className="hidden pt-2 md:flex md:justify-center">
+              <motion.span
+                layout
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-soft text-xs font-semibold text-brand"
+              >
+                {index + 1}
+              </motion.span>
+            </span>
+
+            <p className="flex items-center gap-2 text-xs font-semibold tracking-wide text-muted uppercase md:hidden">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-soft text-brand">
+                {index + 1}
+              </span>
+              Item
+            </p>
+
+            <TextareaField
+              id={`description-${index}`}
+              label="Description"
+              labelClassName={mobileLabel}
+              rows={2}
+              placeholder="Service description"
+              value={detail.description || ""}
+              onChange={(e) =>
+                handleInvoiceDetailChange(index, "description", e.target.value)
+              }
+            />
+
+            <TextField
+              id={`duty-${index}`}
+              label="Duty"
+              labelClassName={mobileLabel}
+              type="number"
+              inputMode="numeric"
+              min="0"
+              placeholder="0"
+              icon={<Hash className="h-4 w-4" />}
+              value={detail.duty || ""}
+              onChange={(e) =>
+                handleInvoiceDetailChange(index, "duty", e.target.value)
+              }
+            />
+
+            <TextField
+              id={`rate-${index}`}
+              label="Rate"
+              labelClassName={mobileLabel}
+              type="number"
+              inputMode="decimal"
+              min="0"
+              placeholder="0"
+              icon={<IndianRupee className="h-4 w-4" />}
+              value={detail.rate || ""}
+              onChange={(e) =>
+                handleInvoiceDetailChange(index, "rate", e.target.value)
+              }
+            />
+
+            <TextField
+              id={`amount-${index}`}
+              label="Amount"
+              labelClassName={mobileLabel}
+              readOnly
+              tabIndex={-1}
+              icon={<Calculator className="h-4 w-4" />}
+              className="bg-surface font-semibold text-ink"
+              placeholder="0"
+              value={detail.amount || ""}
+              onChange={() => undefined}
+            />
+
+            <div className="flex justify-end md:pt-1.5">
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.92 }}
+                onClick={() => handleRemoveRow(index)}
+                disabled={rows.length <= 1}
+                aria-label={`Remove item ${index + 1}`}
+                className="cursor-pointer rounded-lg p-2 text-muted transition-colors duration-200 hover:bg-danger-soft hover:text-danger disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-muted"
+              >
+                <Trash2 className="h-4 w-4" />
+              </motion.button>
+            </div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
   );
 };
 

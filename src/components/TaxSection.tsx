@@ -1,5 +1,31 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
+import { Calculator, Check, IndianRupee, Percent } from "lucide-react";
 import { useInvoiceStore } from "../store/useInvoiceStore";
+import { TextField } from "./Field";
+import { Button } from "./Button";
+import { flashRing, iconPop } from "../utils/motion";
+
+type TaxFieldName =
+  | "cgstPercentage"
+  | "cgstAmount"
+  | "sgstPercentage"
+  | "sgstAmount"
+  | "igstPercentage"
+  | "igstAmount";
+
+type TaxPair = {
+  key: string;
+  title: string;
+  percentageName: TaxFieldName;
+  amountName: TaxFieldName;
+};
+
+const taxPairs: TaxPair[] = [
+  { key: "cgst", title: "CGST", percentageName: "cgstPercentage", amountName: "cgstAmount" },
+  { key: "sgst", title: "SGST", percentageName: "sgstPercentage", amountName: "sgstAmount" },
+  { key: "igst", title: "IGST", percentageName: "igstPercentage", amountName: "igstAmount" },
+];
 
 export const numberToWords = (num: number): string => {
   if (num === 0) return "zero";
@@ -74,6 +100,16 @@ export const numberToWords = (num: number): string => {
 };
 const TaxSection = () => {
   const { formData, setFormData } = useInvoiceStore();
+  const flashControls = useAnimationControls();
+  const [justCalculated, setJustCalculated] = useState(false);
+
+  // Clears the calculated confirmation state shortly after it is shown.
+  useEffect(() => {
+    if (!justCalculated) return;
+
+    const timer = setTimeout(() => setJustCalculated(false), 1800);
+    return () => clearTimeout(timer);
+  }, [justCalculated]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -136,169 +172,110 @@ const TaxSection = () => {
       totalInvoiceInWords,
       totalInvoicePayable: totalInvoicePayable.toFixed(2),
     });
+
+    setJustCalculated(true);
+    flashControls.start(flashRing);
   };
 
   return (
-    <section className="mb-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-        <h3 className="text-xl font-semibold text-gray-800">Tax Information</h3>
-        <button
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-brand-soft/60 px-4 py-3">
+        <p className="text-sm text-ink-soft">
+          Fill the values manually, or calculate CGST and SGST at 9% from the line items.
+        </p>
+        <Button
           type="button"
+          size="sm"
           onClick={handleAutoCalcuate}
-          className="mt-3 md:mt-0 px-5 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition flex items-center justify-center"
+          icon={
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={justCalculated ? "done" : "calc"}
+                variants={iconPop}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="flex"
+              >
+                {justCalculated ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <Calculator className="h-4 w-4" />
+                )}
+              </motion.span>
+            </AnimatePresence>
+          }
         >
-          Auto Calculate
-        </button>
+          {justCalculated ? "Calculated" : "Auto Calculate"}
+        </Button>
       </div>
 
-      {/* Grid Inputs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label
-            htmlFor="taxDuty"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            Tax Duty:
-          </label>
-          <input
-            type="number"
+      <motion.div animate={flashControls} className="space-y-5 rounded-xl">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <TextField
             id="taxDuty"
             name="taxDuty"
+            label="Tax Duty"
+            type="number"
             min="0"
-            className="w-full px-4 py-2 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            placeholder="0"
+            icon={<Calculator className="h-4 w-4" />}
             value={formData.taxDuty || ""}
             onChange={handleChange}
           />
-        </div>
 
-        <div>
-          <label
-            htmlFor="totalTaxableAmount"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            Total Taxable Amount:
-          </label>
-          <input
-            type="text"
+          <TextField
             id="totalTaxableAmount"
             name="totalTaxableAmount"
-            min="0"
-            className="w-full px-4 py-2 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            label="Total Taxable Amount"
+            placeholder="0.00"
+            icon={<IndianRupee className="h-4 w-4" />}
             value={formData.totalTaxableAmount || ""}
             onChange={handleChange}
           />
         </div>
 
-        <div>
-          <label
-            htmlFor="cgstPercentage"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            CGST (%):
-          </label>
-          <input
-            type="number"
-            id="cgstPercentage"
-            name="cgstPercentage"
-            min="0"
-            className="w-full px-4 py-2 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            value={formData.cgstPercentage || ""}
-            onChange={handleChange}
-          />
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {taxPairs.map(({ key, title, percentageName, amountName }) => (
+            <motion.div
+              key={key}
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="rounded-xl border border-line bg-surface/60 p-4"
+            >
+              <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-soft text-brand">
+                  <Percent className="h-3.5 w-3.5" />
+                </span>
+                {title}
+              </h3>
+              <div className="space-y-3">
+                <TextField
+                  id={percentageName}
+                  name={percentageName}
+                  label="Percentage (%)"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  icon={<Percent className="h-4 w-4" />}
+                  value={formData[percentageName] || ""}
+                  onChange={handleChange}
+                />
+                <TextField
+                  id={amountName}
+                  name={amountName}
+                  label="Amount"
+                  placeholder="0.00"
+                  icon={<IndianRupee className="h-4 w-4" />}
+                  value={formData[amountName] || ""}
+                  onChange={handleChange}
+                />
+              </div>
+            </motion.div>
+          ))}
         </div>
-
-        <div>
-          <label
-            htmlFor="cgstAmount"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            CGST:
-          </label>
-          <input
-            type="text"
-            id="cgstAmount"
-            name="cgstAmount"
-            min="0"
-            className="w-full px-4 py-2 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            value={formData.cgstAmount || ""}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="sgstPercentage"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            SGST (%):
-          </label>
-          <input
-            type="number"
-            id="sgstPercentage"
-            name="sgstPercentage"
-            min="0"
-            className="w-full px-4 py-2 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            value={formData.sgstPercentage || ""}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="sgstAmount"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            SGST:
-          </label>
-          <input
-            type="text"
-            id="sgstAmount"
-            name="sgstAmount"
-            min="0"
-            className="w-full px-4 py-2 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            value={formData.sgstAmount || ""}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="igstPercentage"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            IGST (%):
-          </label>
-          <input
-            type="number"
-            id="igstPercentage"
-            name="igstPercentage"
-            min="0"
-            className="w-full px-4 py-2 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            value={formData.igstPercentage || ""}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="igstAmount"
-            className="block mb-2 font-medium text-gray-700"
-          >
-            IGST:
-          </label>
-          <input
-            type="number"
-            id="igstAmount"
-            name="igstAmount"
-            min="0"
-            className="w-full px-4 py-2 border border-gray-500 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            value={formData.igstAmount || ""}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
-    </section>
+      </motion.div>
+    </div>
   );
 };
 

@@ -1,12 +1,13 @@
-
 const Footer = () => {
   return (
-    <div className="bg-gray-300 text-white py-4 px-6 mt-100">
-      <p className="text-center text-sm text-gray-600">
-        All rights reserved by Abiram K &copy; {`${new Date().getFullYear()}`}
-      </p>
-    </div>
-  )
-}
+    <footer className="border-t border-line bg-card">
+      <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+        <p className="text-center text-sm text-muted">
+          All rights reserved by Abiram K &copy; {new Date().getFullYear()}
+        </p>
+      </div>
+    </footer>
+  );
+};
 
-export default Footer
+export default Footer;

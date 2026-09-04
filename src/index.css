@@ -1,6 +1,55 @@
 @import "tailwindcss";
 
-/* input:focus{
-  border: none;
-  padding: 2px;
-} */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-surface: #f4f5f7;
+  --color-card: #ffffff;
+  --color-ink: #0f172a;
+  --color-ink-soft: #334155;
+  --color-muted: #64748b;
+  --color-line: #e4e7ec;
+  --color-brand: #4f46e5;
+  --color-brand-strong: #4338ca;
+  --color-brand-soft: #eef2ff;
+  --color-positive: #059669;
+  --color-positive-soft: #ecfdf5;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fef2f2;
+
+  --radius-card: 1rem;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Keeps native date and number controls aligned with the field styling. */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,22 +1,51 @@
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FileQuestion } from "lucide-react";
+import { fadeUp, staggerContainer } from "../utils/motion";
 
 const NotFound = () => {
   const COMPANY_NAME = import.meta.env.VITE_COMPANY_NAME;
-  return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="text-center p-6 bg-white shadow-lg rounded-lg">
-        <h1 className="text-6xl font-bold text-gray-800 mb-4">404 ! </h1>
-        <p className="text-lg text-gray-600">Oops! The page you're looking for doesn't exist.</p>
-        <Link
-          to="/"
-          className="mt-4 inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300"
-        >
-          Go Back to Home
-        </Link>
-        <p className='text-gray-400 mt-5'>Company @ {COMPANY_NAME}</p>
-      </div>
-    </div>
-  )
-}
 
-export default NotFound
+  return (
+    <div className="flex min-h-[70vh] items-center justify-center px-4 py-12">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="w-full max-w-md rounded-card border border-line bg-card p-8 text-center shadow-sm"
+      >
+        <motion.div
+          variants={fadeUp}
+          className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand-soft text-brand"
+        >
+          <FileQuestion className="h-7 w-7" />
+        </motion.div>
+
+        <motion.h1 variants={fadeUp} className="text-3xl font-semibold text-ink">
+          Page not found
+        </motion.h1>
+
+        <motion.p variants={fadeUp} className="mt-2 text-sm text-muted">
+          The page you are looking for does not exist or has moved.
+        </motion.p>
+
+        <motion.div variants={fadeUp} className="mt-6">
+          <Link
+            to="/"
+            className="inline-flex items-center justify-center rounded-xl bg-brand px-5 py-2.5 text-sm font-medium text-white transition-colors duration-200 hover:bg-brand-strong focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/30"
+          >
+            Back to invoice form
+          </Link>
+        </motion.div>
+
+        {COMPANY_NAME ? (
+          <motion.p variants={fadeUp} className="mt-6 text-xs text-muted">
+            {COMPANY_NAME}
+          </motion.p>
+        ) : null}
+      </motion.div>
+    </div>
+  );
+};
+
+export default NotFound;

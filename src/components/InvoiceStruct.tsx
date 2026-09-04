@@ -15,6 +15,11 @@ import { useNavigate } from "react-router-dom";
 import { saveAs } from "file-saver";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, Download, FileText, Loader2 } from "lucide-react";
+import { Button } from "./Button";
+import { TextField } from "./Field";
+import { fadeUp } from "../utils/motion";
 import { getCurrentMonth } from "../utils/getCurrentMonth";
 import { useInvoiceStore } from "../store/useInvoiceStore";
 
@@ -499,229 +504,158 @@ const InvoicePDF: React.FC<{ invoiceData: IGeneralData }> = ({
   );
 };
 
-// Enhanced Invoice viewer component
+// Preview screen with the PDF viewer and the save control.
 const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
   invoiceData,
 }) => {
   const [fileName, setFileName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
+  // Renders the invoice to a PDF blob and saves it, guarding against repeat clicks.
   const handleDownload = async () => {
+    if (isSaving) return;
+
     if (fileName.length < 3) {
       toast.error("Enter proper file name", { position: "top-center" });
       inputRef.current?.focus();
       return;
     }
-    const blob = await pdf(<InvoicePDF invoiceData={invoiceData} />).toBlob();
-    saveAs(blob, `${fileName}.pdf`);
-    toast.success("Saved successfully", { position: "top-center" });
+
+    setIsSaving(true);
+    try {
+      const blob = await pdf(<InvoicePDF invoiceData={invoiceData} />).toBlob();
+      saveAs(blob, `${fileName}.pdf`);
+      toast.success("Saved successfully", { position: "top-center" });
+    } catch {
+      toast.error("Could not save the PDF. Please try again.", {
+        position: "top-center",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <div className="flex flex-col  bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 space-y-6">
-      {/* Enhanced Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white p-6 rounded-2xl shadow-xl border border-gray-200 backdrop-blur-sm">
-        {/* Left side - Back button and title */}
-        <div className="flex items-center gap-4">
-          <button
+    <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-8 sm:px-6 lg:py-10">
+      <motion.header
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="flex flex-col gap-5 rounded-card border border-line bg-card p-5 shadow-sm sm:p-6 lg:flex-row lg:items-end lg:justify-between"
+      >
+        <div className="flex items-start gap-4">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => navigate("/")}
-            className="group relative px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-30 transition-all duration-300 transform hover:scale-105 active:scale-95 overflow-hidden"
+            icon={<ArrowLeft className="h-4 w-4" />}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-            <div className="relative flex items-center gap-2">
-              <svg
-                className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-              Back to Form
-            </div>
-          </button>
+            Back
+          </Button>
 
-          <div className="hidden lg:block">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight text-ink">
               Invoice Preview
             </h1>
-            <p className="text-gray-500 text-sm">
-              Review and download your invoice
+            <p className="mt-0.5 text-sm text-muted">
+              Review the invoice and save it as a PDF.
             </p>
           </div>
         </div>
 
-        {/* Right side - Download section */}
-        <div className="w-full lg:w-auto">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-gradient-to-r from-gray-50 to-white p-5 rounded-xl shadow-inner border border-gray-100">
-            <div className="relative group">
-              <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">
-                File Name
-              </label>
-              <div className="relative">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={fileName}
-                  onChange={(e) => setFileName(e.target.value)}
-                  placeholder="Enter file name..."
-                  className="w-full sm:w-64 border-2 border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-gray-700 bg-white shadow-sm transition-all duration-200 hover:border-gray-300 placeholder-gray-400"
-                />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <svg
-                    className="w-4 h-4 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <TextField
+            id="fileName"
+            ref={inputRef}
+            label="File name"
+            placeholder="invoice-001"
+            icon={<FileText className="h-4 w-4" />}
+            wrapperClassName="sm:w-64"
+            value={fileName}
+            onChange={(e) => setFileName(e.target.value)}
+          />
 
-            <div className="flex flex-col justify-end">
-              <div className="h-6"></div> {/* Spacer to align with input */}
-              <button
-                onClick={handleDownload}
-                className="group relative w-full sm:w-auto flex items-center justify-center gap-3 text-white bg-gradient-to-r from-red-600 to-rose-600 px-6 py-3 rounded-xl hover:from-red-700 hover:to-rose-700 focus:outline-none focus:ring-4 focus:ring-red-400 focus:ring-opacity-30 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 font-semibold overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-rose-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 group-hover:animate-bounce"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="relative">Save PDF</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Enhanced Content Area */}
-      {fileName.length === 0 ? (
-        <div className="flex-1 w-full bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 relative group">
-          {/* PDF Viewer Header */}
-          <div className="bg-gradient-to-r from-gray-800 to-gray-700 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex space-x-2">
-                <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-              </div>
-              <h3 className="text-white font-medium text-sm">
-                Invoice Preview
-              </h3>
-            </div>
-            <div className="flex items-center gap-2 text-gray-300 text-xs">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              PDF Document
-            </div>
-          </div>
-
-          <PDFViewer
-            style={{
-              width: "100%",
-              height: "calc(100% - 60px)",
-              minHeight: "500px",
-              border: "none",
-            }}
-            className="bg-gray-50"
+          <Button
+            type="button"
+            onClick={handleDownload}
+            disabled={isSaving}
+            className="sm:mb-0"
+            icon={
+              isSaving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )
+            }
           >
-            <InvoicePDF invoiceData={invoiceData} />
-          </PDFViewer>
+            {isSaving ? "Saving..." : "Save PDF"}
+          </Button>
         </div>
-      ) : (
-        <div className="flex-1 w-full bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-2xl shadow-2xl overflow-hidden flex flex-col items-center justify-center p-8 sm:p-12 space-y-8 border-2 border-blue-100 relative">
-          {/* Background decoration */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200 to-indigo-200 rounded-full opacity-20 blur-3xl"></div>
-            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-200 to-pink-200 rounded-full opacity-20 blur-3xl"></div>
-          </div>
+      </motion.header>
 
-          {/* Content */}
-          <div className="relative text-center space-y-6">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shadow-lg mb-4">
-              <svg
-                className="w-12 h-12 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
+      <AnimatePresence mode="wait" initial={false}>
+        {fileName.length === 0 ? (
+          <motion.div
+            key="viewer"
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            exit={{ opacity: 0 }}
+            className="overflow-hidden rounded-card border border-line bg-card shadow-sm"
+          >
+            <div className="flex items-center gap-2 border-b border-line bg-surface/70 px-4 py-3">
+              <FileText className="h-4 w-4 text-muted" />
+              <span className="text-sm font-medium text-ink-soft">
+                PDF document
+              </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 leading-tight">
-              Ready to Save!
-            </h1>
-
-            <p className="text-lg text-gray-600 max-w-md leading-relaxed">
-              Your invoice is ready. Save the file to enable{" "}
-              <span className="font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Preview Mode
-              </span>{" "}
-              and view the document.
-            </p>
-          </div>
-
-          <div className="relative flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={() => setFileName("")}
-              className="group relative flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl hover:shadow-2xl overflow-hidden"
+            <PDFViewer
+              style={{
+                width: "100%",
+                height: "70vh",
+                minHeight: "480px",
+                border: "none",
+              }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-indigo-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 group-hover:-translate-x-1 transition-transform duration-200"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="relative">Back to Preview</span>
-            </button>
-
-            <div className="text-center text-gray-500 text-sm self-center px-4">
-              or scroll up to save the PDF
+              <InvoicePDF invoiceData={invoiceData} />
+            </PDFViewer>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="ready"
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            exit={{ opacity: 0 }}
+            className="flex flex-col items-center justify-center rounded-card border border-line bg-card px-6 py-16 text-center shadow-sm"
+          >
+            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-brand-soft text-brand">
+              <Download className="h-7 w-7" />
             </div>
-          </div>
-        </div>
-      )}
+
+            <h2 className="text-xl font-semibold text-ink">Ready to save</h2>
+            <p className="mt-2 max-w-md text-sm text-muted">
+              Saving as{" "}
+              <span className="font-medium text-ink">{fileName}.pdf</span>.
+              Clear the file name to return to the preview.
+            </p>
+
+            <Button
+              type="button"
+              variant="secondary"
+              className="mt-6"
+              onClick={() => setFileName("")}
+              icon={<ArrowLeft className="h-4 w-4" />}
+            >
+              Back to preview
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
