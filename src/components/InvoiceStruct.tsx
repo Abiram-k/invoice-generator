@@ -8,20 +8,23 @@ import {
   pdf,
   Image,
 } from "@react-pdf/renderer";
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
 
 import { IGeneralData } from "../types/invoice-types";
 import { useNavigate } from "react-router-dom";
 import { saveAs } from "file-saver";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowLeft, Download, FileText, Loader2 } from "lucide-react";
 import { Button } from "./Button";
 import { TextField } from "./Field";
 import { fadeUp } from "../utils/motion";
 import { getCurrentMonth } from "../utils/getCurrentMonth";
 import { useInvoiceStore } from "../store/useInvoiceStore";
+import { useReceiverStore } from "../store/useReceiverStore";
+import { findReceiverByValues } from "../utils/receiver";
+import { buildInvoiceFileName } from "../utils/invoiceFileName";
 
 const styles = StyleSheet.create({
   page: {
@@ -508,16 +511,38 @@ const InvoicePDF: React.FC<{ invoiceData: IGeneralData }> = ({
 const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
   invoiceData,
 }) => {
-  const [fileName, setFileName] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const { selectedInvoiceMonth } = useInvoiceStore();
+  const receivers = useReceiverStore((state) => state.receivers);
   const navigate = useNavigate();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const receiverName = findReceiverByValues(
+    receivers,
+    invoiceData.companyAddress,
+    invoiceData.email,
+    invoiceData.gstin
+  )?.name;
+
+  const [fileName, setFileName] = useState(() =>
+    buildInvoiceFileName(
+      invoiceData.invoiceFromCompany,
+      receiverName,
+      selectedInvoiceMonth
+    )
+  );
+
+  // Keeps the rendered document stable so typing a file name does not rebuild the PDF.
+  const invoiceDocument = useMemo(
+    () => <InvoicePDF invoiceData={invoiceData} />,
+    [invoiceData]
+  );
 
   // Renders the invoice to a PDF blob and saves it, guarding against repeat clicks.
   const handleDownload = async () => {
     if (isSaving) return;
 
-    if (fileName.length < 3) {
+    if (fileName.trim().length < 3) {
       toast.error("Enter proper file name", { position: "top-center" });
       inputRef.current?.focus();
       return;
@@ -525,8 +550,8 @@ const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
 
     setIsSaving(true);
     try {
-      const blob = await pdf(<InvoicePDF invoiceData={invoiceData} />).toBlob();
-      saveAs(blob, `${fileName}.pdf`);
+      const blob = await pdf(invoiceDocument).toBlob();
+      saveAs(blob, `${fileName.trim()}.pdf`);
       toast.success("Saved successfully", { position: "top-center" });
     } catch {
       toast.error("Could not save the PDF. Please try again.", {
@@ -571,9 +596,10 @@ const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
             id="fileName"
             ref={inputRef}
             label="File name"
-            placeholder="invoice-001"
+            placeholder="invoice"
+            hint="Saved as .pdf"
             icon={<FileText className="h-4 w-4" />}
-            wrapperClassName="sm:w-64"
+            wrapperClassName="sm:w-80"
             value={fileName}
             onChange={(e) => setFileName(e.target.value)}
           />
@@ -582,7 +608,7 @@ const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
             type="button"
             onClick={handleDownload}
             disabled={isSaving}
-            className="sm:mb-0"
+            className="sm:mb-6"
             icon={
               isSaving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -596,66 +622,28 @@ const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
         </div>
       </motion.header>
 
-      <AnimatePresence mode="wait" initial={false}>
-        {fileName.length === 0 ? (
-          <motion.div
-            key="viewer"
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            exit={{ opacity: 0 }}
-            className="overflow-hidden rounded-card border border-line bg-card shadow-sm"
-          >
-            <div className="flex items-center gap-2 border-b border-line bg-surface/70 px-4 py-3">
-              <FileText className="h-4 w-4 text-muted" />
-              <span className="text-sm font-medium text-ink-soft">
-                PDF document
-              </span>
-            </div>
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className="overflow-hidden rounded-card border border-line bg-card shadow-sm"
+      >
+        <div className="flex items-center gap-2 border-b border-line bg-surface/70 px-4 py-3">
+          <FileText className="h-4 w-4 text-muted" />
+          <span className="text-sm font-medium text-ink-soft">PDF document</span>
+        </div>
 
-            <PDFViewer
-              style={{
-                width: "100%",
-                height: "70vh",
-                minHeight: "480px",
-                border: "none",
-              }}
-            >
-              <InvoicePDF invoiceData={invoiceData} />
-            </PDFViewer>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="ready"
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center rounded-card border border-line bg-card px-6 py-16 text-center shadow-sm"
-          >
-            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-brand-soft text-brand">
-              <Download className="h-7 w-7" />
-            </div>
-
-            <h2 className="text-xl font-semibold text-ink">Ready to save</h2>
-            <p className="mt-2 max-w-md text-sm text-muted">
-              Saving as{" "}
-              <span className="font-medium text-ink">{fileName}.pdf</span>.
-              Clear the file name to return to the preview.
-            </p>
-
-            <Button
-              type="button"
-              variant="secondary"
-              className="mt-6"
-              onClick={() => setFileName("")}
-              icon={<ArrowLeft className="h-4 w-4" />}
-            >
-              Back to preview
-            </Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <PDFViewer
+          style={{
+            width: "100%",
+            height: "70vh",
+            minHeight: "480px",
+            border: "none",
+          }}
+        >
+          {invoiceDocument}
+        </PDFViewer>
+      </motion.div>
     </div>
   );
 };
