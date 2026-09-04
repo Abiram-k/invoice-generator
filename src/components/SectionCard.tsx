@@ -7,6 +7,7 @@ interface SectionCardProps {
   title: string;
   icon: ReactNode;
   description?: string;
+  art?: ReactNode;
   action?: ReactNode;
   children: ReactNode;
 }
@@ -17,14 +18,21 @@ export const SectionCard = ({
   title,
   icon,
   description,
+  art,
   action,
   children,
 }: SectionCardProps) => (
   <motion.section
     variants={fadeUp}
-    className="group rounded-card border border-line bg-card/80 p-5 shadow-sm backdrop-blur-[2px] transition-shadow duration-300 hover:shadow-md sm:p-7"
+    className="group relative overflow-hidden rounded-card border border-line bg-card/80 p-5 shadow-sm backdrop-blur-[2px] transition-shadow duration-300 hover:shadow-md sm:p-7"
   >
-    <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
+    {art ? (
+      <span className="pointer-events-none absolute -right-6 -bottom-10 w-44 text-brand opacity-[0.07] sm:w-56 dark:opacity-[0.12]">
+        {art}
+      </span>
+    ) : null}
+
+    <header className="relative mb-6 flex flex-wrap items-start justify-between gap-4">
       <div className="flex items-center gap-3.5">
         <motion.span
           whileHover={{ scale: 1.08, rotate: -4 }}
@@ -45,7 +53,7 @@ export const SectionCard = ({
       </div>
       {action}
     </header>
-    {children}
+    <div className="relative">{children}</div>
   </motion.section>
 );
 

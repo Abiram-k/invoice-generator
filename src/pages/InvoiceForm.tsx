@@ -21,6 +21,11 @@ import TaxSection from "../components/TaxSection";
 import SectionCard from "../components/SectionCard";
 import ConfirmDialog from "../components/ConfirmDialog";
 import ThemeToggle from "../components/ThemeToggle";
+import {
+  InvoiceCardArt,
+  LineItemsCardArt,
+  ReceiverCardArt,
+} from "../components/illustrations/cardArt";
 import FullscreenToggle from "../components/FullscreenToggle";
 import { Button } from "../components/Button";
 import { SelectField } from "../components/Field";
@@ -177,9 +182,11 @@ export default function InvoiceForm() {
         {/* Header */}
         <motion.header
           variants={fadeUp}
-          className="rounded-card border border-line bg-card/80 p-5 shadow-sm backdrop-blur-[2px] sm:p-7"
+          className="relative overflow-hidden rounded-card border border-line bg-card/80 p-5 shadow-sm backdrop-blur-[2px] sm:p-7"
         >
-          <div className="flex flex-col gap-6">
+          <InvoiceCardArt className="pointer-events-none absolute -top-8 right-24 w-40 text-brand opacity-[0.07] sm:w-48 dark:opacity-[0.12]" />
+
+          <div className="relative flex flex-col gap-6">
             <div className="flex items-center gap-3.5">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand text-white shadow-sm">
                 <ReceiptIndianRupee className="h-5 w-5" />
@@ -248,6 +255,7 @@ export default function InvoiceForm() {
           step={1}
           title="General Information"
           icon={<UserRoundPen className="h-5 w-5" />}
+          art={<ReceiverCardArt />}
           description="Invoice number, date and receiver details."
           action={
             <Button
@@ -269,6 +277,7 @@ export default function InvoiceForm() {
           step={2}
           title="Invoice Details"
           icon={<ListChecks className="h-5 w-5" />}
+          art={<LineItemsCardArt />}
           description="Line items billed on this invoice."
           action={
             <Button
