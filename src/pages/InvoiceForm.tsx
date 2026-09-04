@@ -13,6 +13,7 @@ import {
   Wallet,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import GeneralSection from "../components/GeneralSection";
@@ -22,6 +23,7 @@ import SectionCard from "../components/SectionCard";
 import ConfirmDialog from "../components/ConfirmDialog";
 import ThemeToggle from "../components/ThemeToggle";
 import HeaderClock from "../components/HeaderClock";
+import LanguageToggle from "../components/LanguageToggle";
 import {
   LineItemsCardArt,
   ReceiverCardArt,
@@ -39,6 +41,7 @@ import { useInvoiceStore } from "../store/useInvoiceStore";
 import { fadeUp, staggerContainer } from "../utils/motion";
 
 export default function InvoiceForm() {
+  const { t } = useTranslation();
   const { setData } = useDataContext();
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [failedLogo, setFailedLogo] = useState<string>();
@@ -65,7 +68,7 @@ export default function InvoiceForm() {
     const errors = [];
 
     if (!formData.invoiceDetails?.length) {
-      toast.error("Add at least one duty!");
+      toast.error(t("validation.atLeastOneDuty"));
       errors.push("invoiceDetails");
       return false;
     } else {
@@ -86,44 +89,44 @@ export default function InvoiceForm() {
       });
 
       if (!isValid) {
-        toast.error("Please fill all required fields in invoice details.");
+        toast.error(t("validation.incompleteDetails"));
         errors.push("invoiceDetails");
         return false;
       }
     }
 
     if (!formData.invoiceNumber) {
-      toast.error("Add Invoice Number!");
+      toast.error(t("validation.invoiceNumber"));
       errors.push("invoiceNumber");
       return false;
     }
 
     if (!formData.invoiceDate) {
-      toast.error("Add Invoice Date!");
+      toast.error(t("validation.invoiceDate"));
       errors.push("invoiceDate");
       return false;
     }
 
     if (!formData.companyAddress) {
-      toast.error("Add Receiver's Company Address!");
+      toast.error(t("validation.companyAddress"));
       errors.push("companyAddress");
       return false;
     }
 
     if (!formData.totalInvoiceInWords || !formData.totalInvoicePayable) {
-      toast.error("Add total amount and its word representation!");
+      toast.error(t("validation.totals"));
       errors.push("totalInvoice");
       return false;
     }
 
     if (!formData.totalTaxableAmount) {
-      toast.error("Total Taxable Amount is required!");
+      toast.error(t("validation.taxableAmount"));
       errors.push("Tax Error");
       return false;
     }
 
     if (!formData.taxDuty) {
-      toast.error("Tax Duty is required!");
+      toast.error(t("validation.taxDuty"));
       errors.push("Tax Error");
       return false;
     }
@@ -224,15 +227,16 @@ export default function InvoiceForm() {
 
               <div className="min-w-0">
                 <h1 className="text-xl font-semibold tracking-tight text-ink sm:text-2xl">
-                  Invoice Generator
+                  {t("app.name")}
                 </h1>
                 <p className="mt-0.5 hidden text-sm text-muted sm:block">
-                  Create professional invoices with ease.
+                  {t("app.tagline")}
                 </p>
               </div>
 
               <div className="ml-auto flex items-center gap-2 sm:gap-3">
                 <HeaderClock />
+                <LanguageToggle />
                 <ThemeToggle />
                 <FullscreenToggle />
               </div>
@@ -242,7 +246,7 @@ export default function InvoiceForm() {
               <SelectField
                 id="invoiceFromCompany"
                 name="invoiceFromCompany"
-                label="Company"
+                label={t("header.company")}
                 icon={<Building2 className="h-4 w-4" />}
                 value={formData.invoiceFromCompany}
                 onChange={handleSelectChangeInvoiceFrom}
@@ -256,26 +260,26 @@ export default function InvoiceForm() {
               <SelectField
                 id="invoiceType"
                 name="invoiceType"
-                label="Invoice Type"
+                label={t("header.invoiceType")}
                 icon={<ReceiptIndianRupee className="h-4 w-4" />}
                 value={formData.invoiceType ? "Monthly Wage" : "Daily Wage"}
                 onChange={handleSelectChangeInvoiceType}
               >
-                <option value="Daily Wage">Daily Wage</option>
-                <option value="Monthly Wage">Monthly Wage</option>
+                <option value="Daily Wage">{t("header.dailyWage")}</option>
+                <option value="Monthly Wage">{t("header.monthlyWage")}</option>
               </SelectField>
 
               <SelectField
                 id="invoiceMonth"
-                label="Month"
+                label={t("header.month")}
                 icon={<CalendarRange className="h-4 w-4" />}
                 value={selectedInvoiceMonth || ""}
                 onChange={handleSelectChangeMonth}
               >
-                <option value="">Select Month</option>
+                <option value="">{t("header.selectMonth")}</option>
                 {monthNames.map((month: Month) => (
                   <option key={month} value={month}>
-                    {month}
+                    {t(`months.${month}`)}
                   </option>
                 ))}
               </SelectField>
@@ -285,20 +289,20 @@ export default function InvoiceForm() {
 
         <SectionCard
           step={1}
-          title="General Information"
+          title={t("general.title")}
           icon={<UserRoundPen className="h-5 w-5" />}
           art={<ReceiverCardArt />}
-          description="Invoice number, date and receiver details."
+          description={t("general.description")}
           action={
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={() => setIsResetConfirmOpen(true)}
-              title="Reset form"
+              title={t("actions.resetForm")}
               icon={<RotateCcw className="h-4 w-4" />}
             >
-              Reset
+              {t("actions.reset")}
             </Button>
           }
         >
@@ -307,10 +311,10 @@ export default function InvoiceForm() {
 
         <SectionCard
           step={2}
-          title="Invoice Details"
+          title={t("details.title")}
           icon={<ListChecks className="h-5 w-5" />}
           art={<LineItemsCardArt />}
-          description="Line items billed on this invoice."
+          description={t("details.description")}
           action={
             <Button
               type="button"
@@ -319,7 +323,7 @@ export default function InvoiceForm() {
               onClick={handleAddRow}
               icon={<Plus className="h-4 w-4" />}
             >
-              Add Row
+              {t("details.addRow")}
             </Button>
           }
         >
@@ -328,9 +332,9 @@ export default function InvoiceForm() {
 
         <SectionCard
           step={3}
-          title="Tax & Total"
+          title={t("tax.title")}
           icon={<Wallet className="h-5 w-5" />}
-          description="GST breakdown and the final payable amount, calculated from the line items."
+          description={t("tax.description")}
         >
           <TaxSection />
         </SectionCard>
@@ -342,7 +346,7 @@ export default function InvoiceForm() {
             className="group w-full sm:w-auto"
             icon={<FileText className="h-5 w-5" />}
           >
-            Generate Invoice
+            {t("actions.generate")}
             <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
           </Button>
         </motion.div>
@@ -350,10 +354,10 @@ export default function InvoiceForm() {
 
       <ConfirmDialog
         open={isResetConfirmOpen}
-        title="Reset the form?"
-        message="All invoice details entered on this form will be cleared. Saved receivers are not affected."
+        title={t("resetDialog.title")}
+        message={t("resetDialog.message")}
         icon={<RotateCcw className="h-5 w-5" />}
-        confirmLabel="Reset form"
+        confirmLabel={t("actions.resetForm")}
         onConfirm={resetForm}
         onClose={() => setIsResetConfirmOpen(false)}
       />

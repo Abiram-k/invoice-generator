@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Maximize, Minimize } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 import { iconPop } from "../utils/motion";
 
 // Switches the browser in and out of fullscreen for the whole app.
 export const FullscreenToggle = () => {
+  const { t } = useTranslation();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export const FullscreenToggle = () => {
 
       await document.documentElement.requestFullscreen();
     } catch {
-      toast.error("Fullscreen is not available in this browser.");
+      toast.error(t("toast.fullscreenUnavailable"));
     }
   };
 
@@ -40,8 +42,8 @@ export const FullscreenToggle = () => {
       whileHover={{ y: -1 }}
       whileTap={{ scale: 0.94 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-      title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+      aria-label={isFullscreen ? t("fullscreen.exit") : t("fullscreen.enter")}
+      title={isFullscreen ? t("fullscreen.exit") : t("fullscreen.enter")}
       className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-line bg-card text-ink-soft shadow-sm transition-colors duration-200 hover:border-muted/40 hover:text-ink focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/20"
     >
       <AnimatePresence mode="wait" initial={false}>

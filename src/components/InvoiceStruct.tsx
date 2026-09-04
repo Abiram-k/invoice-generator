@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { saveAs } from "file-saver";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { ArrowLeft, Download, FileText, Loader2 } from "lucide-react";
 import { Button } from "./Button";
@@ -513,6 +514,7 @@ const InvoicePDF: React.FC<{ invoiceData: IGeneralData }> = ({
 const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
   invoiceData,
 }) => {
+  const { t } = useTranslation();
   const { selectedInvoiceMonth } = useInvoiceStore();
   const receivers = useReceiverStore((state) => state.receivers);
   const navigate = useNavigate();
@@ -545,7 +547,7 @@ const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
     if (isSaving) return;
 
     if (fileName.trim().length < 3) {
-      toast.error("Enter proper file name", { position: "top-center" });
+      toast.error(t("toast.fileNameRequired"), { position: "top-center" });
       inputRef.current?.focus();
       return;
     }
@@ -554,11 +556,9 @@ const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
     try {
       const blob = await pdf(invoiceDocument).toBlob();
       saveAs(blob, `${fileName.trim()}.pdf`);
-      toast.success("Saved successfully", { position: "top-center" });
+      toast.success(t("toast.pdfSaved"), { position: "top-center" });
     } catch {
-      toast.error("Could not save the PDF. Please try again.", {
-        position: "top-center",
-      });
+      toast.error(t("toast.pdfFailed"), { position: "top-center" });
     } finally {
       setIsSaving(false);
     }
@@ -580,15 +580,15 @@ const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
             onClick={() => navigate("/")}
             icon={<ArrowLeft className="h-4 w-4" />}
           >
-            Back
+            {t("actions.back")}
           </Button>
 
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-ink">
-              Invoice Preview
+              {t("preview.title")}
             </h1>
             <p className="mt-0.5 text-sm text-muted">
-              Review the invoice and save it as a PDF.
+              {t("preview.description")}
             </p>
           </div>
         </div>
@@ -602,9 +602,9 @@ const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
           <TextField
             id="fileName"
             ref={inputRef}
-            label="File name"
+            label={t("preview.fileName")}
             placeholder="invoice"
-            hint="Saved as .pdf"
+            hint={t("preview.fileNameHint")}
             icon={<FileText className="h-4 w-4" />}
             wrapperClassName="sm:w-80"
             value={fileName}
@@ -624,7 +624,7 @@ const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
               )
             }
           >
-            {isSaving ? "Saving..." : "Save PDF"}
+            {isSaving ? t("preview.saving") : t("preview.save")}
           </Button>
         </div>
       </motion.header>
@@ -637,7 +637,9 @@ const InvoicePreview: React.FC<{ invoiceData: IGeneralData }> = ({
       >
         <div className="flex items-center gap-2 border-b border-line bg-surface/70 px-4 py-3">
           <FileText className="h-4 w-4 text-muted" />
-          <span className="text-sm font-medium text-ink-soft">PDF document</span>
+          <span className="text-sm font-medium text-ink-soft">
+            {t("preview.document")}
+          </span>
         </div>
 
         <PDFViewer

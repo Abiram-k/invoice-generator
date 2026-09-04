@@ -11,6 +11,7 @@ import {
   Receipt,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 import { useInvoiceStore } from "../store/useInvoiceStore";
 import { Button } from "./Button";
@@ -84,6 +85,7 @@ const SummaryRow = ({ icon, label, value, badge, divided }: SummaryRowProps) => 
 );
 
 const TaxSection = () => {
+  const { t } = useTranslation();
   const { formData, setFormData } = useInvoiceStore();
   const flashControls = useAnimationControls();
   const [justCalculated, setJustCalculated] = useState(false);
@@ -118,7 +120,7 @@ const TaxSection = () => {
       ...calculateInvoiceTotals({ ...formData, ...clearedGst }),
     });
 
-    toast.success("GST removed from this invoice.");
+    toast.success(t("toast.gstRemoved"));
   };
 
   // Applies the standard 9% CGST and SGST split, then refreshes every dependent total.
@@ -142,9 +144,7 @@ const TaxSection = () => {
     <div className="space-y-5">
       <div className="relative z-30 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-brand-soft/60 px-4 py-3">
         <p className="text-sm text-ink-soft">
-          {isGstApplied
-            ? "GST is applied and every figure below updates as you edit the line items."
-            : "No GST on this invoice yet. Apply it to add CGST and SGST to the payable total."}
+          {isGstApplied ? t("tax.applied") : t("tax.notApplied")}
         </p>
 
         <div className="flex items-center gap-2">
@@ -152,20 +152,16 @@ const TaxSection = () => {
             content={
               <>
                 <span className="mb-1.5 block text-sm font-semibold text-ink">
-                  How these totals are calculated
+                  {t("tax.infoLabel")}
                 </span>
-                Every figure comes from the line items: duty x rate gives each amount,
-                those amounts add up to the taxable amount, and the duty counts add up
-                to the tax duty. Calculate GST adds CGST and SGST at 9% each of the
-                taxable amount (IGST 0%). The payable total is the taxable amount plus
-                GST, and the words follow it automatically.
+                {t("tax.infoBody")}
               </>
             }
           >
             {(triggerProps) => (
               <button
                 type="button"
-                aria-label="How these totals are calculated"
+                aria-label={t("tax.infoLabel")}
                 className="cursor-help rounded-lg p-1.5 text-muted transition-colors duration-200 hover:bg-card hover:text-brand focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/20"
                 {...triggerProps}
               >
@@ -197,7 +193,7 @@ const TaxSection = () => {
               </AnimatePresence>
             }
           >
-            {justCalculated ? "Calculated" : "Calculate GST"}
+            {justCalculated ? t("tax.calculated") : t("tax.calculate")}
           </Button>
 
           <AnimatePresence initial={false}>
@@ -216,7 +212,7 @@ const TaxSection = () => {
                   onClick={handleRemoveGst}
                   icon={<Eraser className="h-4 w-4" />}
                 >
-                  Remove GST
+                  {t("tax.remove")}
                 </Button>
               </motion.div>
             ) : null}
@@ -231,13 +227,13 @@ const TaxSection = () => {
         <div className="rounded-xl border border-line bg-surface/60 px-5 py-2 lg:col-span-3">
           <SummaryRow
             icon={<Hash className="h-3.5 w-3.5" />}
-            label="Tax duty"
+            label={t("tax.taxDuty")}
             value={formData.taxDuty?.trim() ? formData.taxDuty : "—"}
           />
 
           <SummaryRow
             icon={<Receipt className="h-3.5 w-3.5" />}
-            label="Taxable amount"
+            label={t("tax.taxableAmount")}
             value={formatAmount(formData.totalTaxableAmount)}
             divided
           />
@@ -259,7 +255,7 @@ const TaxSection = () => {
 
           <div className="relative">
             <p className="text-xs font-semibold tracking-wide uppercase opacity-80">
-              Total payable
+              {t("tax.totalPayable")}
             </p>
             <p className="mt-1.5 flex items-baseline gap-1 text-3xl font-semibold tabular-nums">
               <IndianRupee className="h-5 w-5 opacity-80" />
@@ -269,7 +265,7 @@ const TaxSection = () => {
 
           <div className="relative mt-5 rounded-xl bg-white/15 p-3.5 dark:bg-black/15">
             <p className="text-[11px] font-semibold tracking-wide uppercase opacity-80">
-              In words
+              {t("tax.inWords")}
             </p>
             <p className="mt-1 text-sm leading-snug font-medium">
               {formData.totalInvoiceInWords?.trim() || "—"}

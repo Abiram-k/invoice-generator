@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { MoreVertical } from "lucide-react";
+import { Check, MoreVertical } from "lucide-react";
 import { Button } from "./Button";
 
 export interface MenuItem {
@@ -8,6 +8,7 @@ export interface MenuItem {
   icon?: ReactNode;
   onClick: () => void;
   disabled?: boolean;
+  selected?: boolean;
   tone?: "default" | "danger";
   separated?: boolean;
 }
@@ -15,10 +16,12 @@ export interface MenuItem {
 interface MenuProps {
   items: MenuItem[];
   label?: string;
+  icon?: ReactNode;
+  triggerText?: string;
 }
 
 // Dropdown menu for secondary actions, closing on outside click or Escape.
-export const Menu = ({ items, label = "More actions" }: MenuProps) => {
+export const Menu = ({ items, label = "More actions", icon, triggerText }: MenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -55,8 +58,10 @@ export const Menu = ({ items, label = "More actions" }: MenuProps) => {
         aria-label={label}
         title={label}
         onClick={() => setIsOpen((open) => !open)}
-        icon={<MoreVertical className="h-4 w-4" />}
-      />
+        icon={icon ?? <MoreVertical className="h-4 w-4" />}
+      >
+        {triggerText}
+      </Button>
 
       <AnimatePresence>
         {isOpen ? (
@@ -85,7 +90,8 @@ export const Menu = ({ items, label = "More actions" }: MenuProps) => {
                 } ${item.separated ? "mt-1.5 border-t border-line pt-3" : ""}`}
               >
                 {item.icon}
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {item.selected ? <Check className="h-4 w-4 text-brand" /> : null}
               </button>
             ))}
           </motion.div>

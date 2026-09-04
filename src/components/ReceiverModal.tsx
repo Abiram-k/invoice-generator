@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { UserRoundPen, UserRoundPlus } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 import { Modal } from "./Modal";
 import { Button } from "./Button";
@@ -26,6 +27,7 @@ export const ReceiverModal = ({
   onClose,
   onSaved,
 }: ReceiverModalProps) => {
+  const { t } = useTranslation();
   const { addReceiver, updateReceiver } = useReceiverStore();
   const [form, setForm] = useState(emptyForm);
   const isEditing = Boolean(receiver);
@@ -57,17 +59,17 @@ export const ReceiverModal = ({
 
   const handleSave = () => {
     if (!form.name.trim()) {
-      toast.error("Receiver name is required.");
+      toast.error(t("toast.receiverNameRequired"));
       return;
     }
 
     if (!form.address.trim()) {
-      toast.error("Receiver address is required.");
+      toast.error(t("toast.receiverAddressRequired"));
       return;
     }
 
     if (form.email.trim() && !emailPattern.test(form.email.trim())) {
-      toast.error("Enter a valid email address.");
+      toast.error(t("toast.invalidEmail"));
       return;
     }
 
@@ -75,7 +77,11 @@ export const ReceiverModal = ({
       ? updateReceiver(receiver.id, form)
       : addReceiver(form);
 
-    toast.success(`${saved.name} ${isEditing ? "updated" : "saved"}.`);
+    toast.success(
+      t(isEditing ? "toast.receiverUpdated" : "toast.receiverSaved", {
+        name: saved.name,
+      })
+    );
     onSaved(saved);
     onClose();
   };
@@ -83,8 +89,8 @@ export const ReceiverModal = ({
   return (
     <Modal
       open={open}
-      title={isEditing ? "Edit receiver" : "Add receiver"}
-      description="Saved receivers stay on this device and can be reused on any invoice."
+      title={isEditing ? t("receiver.edit") : t("receiver.add")}
+      description={t("receiver.modalDescription")}
       icon={
         isEditing ? (
           <UserRoundPen className="h-5 w-5" />
@@ -96,10 +102,10 @@ export const ReceiverModal = ({
       footer={
         <>
           <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
+            {t("actions.cancel")}
           </Button>
           <Button type="button" onClick={handleSave}>
-            {isEditing ? "Save changes" : "Save receiver"}
+            {isEditing ? t("receiver.saveChanges") : t("receiver.save")}
           </Button>
         </>
       }
@@ -108,7 +114,7 @@ export const ReceiverModal = ({
         <TextField
           id="receiverName"
           name="name"
-          label="Receiver name"
+          label={t("receiver.name")}
           placeholder="Acme Ltd"
           value={form.name}
           onChange={handleChange}
@@ -117,9 +123,9 @@ export const ReceiverModal = ({
         <TextareaField
           id="receiverAddress"
           name="address"
-          label="Address"
+          label={t("receiver.address")}
           rows={3}
-          placeholder="Street, city, state, postal code"
+          placeholder={t("receiver.addressPlaceholder")}
           value={form.address}
           onChange={handleChange}
         />
@@ -128,8 +134,8 @@ export const ReceiverModal = ({
           id="receiverEmail"
           name="email"
           type="email"
-          label="Email"
-          hint="Optional"
+          label={t("receiver.email")}
+          hint={t("general.optional")}
           placeholder="accounts@company.com"
           value={form.email}
           onChange={handleChange}
@@ -138,8 +144,8 @@ export const ReceiverModal = ({
         <TextField
           id="receiverGstin"
           name="gstin"
-          label="GSTIN"
-          hint="Optional. Saved in uppercase."
+          label={t("receiver.gstin")}
+          hint={t("receiver.gstinHint")}
           placeholder="29ABCDE1234F2Z5"
           value={form.gstin}
           onChange={handleChange}

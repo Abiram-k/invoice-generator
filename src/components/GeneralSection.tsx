@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 import { useInvoiceStore } from "../store/useInvoiceStore";
 import { useReceiverStore } from "../store/useReceiverStore";
@@ -41,6 +42,7 @@ const buildOptions = (values: (string | undefined)[], current?: string) => {
 };
 
 const GeneralSection = () => {
+  const { t } = useTranslation();
   const { formData, setFormData } = useInvoiceStore();
   const { receivers, addReceivers, removeReceiver } = useReceiverStore();
   const [isReceiverModalOpen, setIsReceiverModalOpen] = useState(false);
@@ -106,7 +108,7 @@ const GeneralSection = () => {
 
     removeReceiver(selectedReceiver.id);
     applyReceiver(undefined);
-    toast.success(`${selectedReceiver.name} deleted.`);
+    toast.success(t("toast.receiverDeleted", { name: selectedReceiver.name }));
   };
 
   // Downloads the saved receivers as a JSON file that the import can read back.
@@ -117,7 +119,7 @@ const GeneralSection = () => {
     const today = new Date().toISOString().slice(0, 10);
 
     saveAs(blob, `receivers-${today}.json`);
-    toast.success(`${receivers.length} receiver${receivers.length === 1 ? "" : "s"} exported.`);
+    toast.success(t("toast.exported", { count: receivers.length }));
   };
 
   // Imports receivers from a JSON file and stores them alongside manually added ones.
@@ -128,10 +130,12 @@ const GeneralSection = () => {
     try {
       const imported = parseReceiversJson(await file.text());
       const count = addReceivers(imported);
-      toast.success(`${count} receiver${count === 1 ? "" : "s"} imported.`);
+      toast.success(t("toast.imported", { count }));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Could not read that file."
+        error instanceof Error
+          ? t(`toast.${error.message}`, { defaultValue: t("toast.importFailed") })
+          : t("toast.importFailed")
       );
     } finally {
       e.target.value = "";
@@ -157,31 +161,31 @@ const GeneralSection = () => {
 
   const receiverMenuItems: MenuItem[] = [
     {
-      label: "Add receiver",
+      label: t("receiver.add"),
       icon: <UserRoundPlus className={iconClasses} />,
       onClick: openAddReceiver,
     },
     {
-      label: "Edit receiver",
+      label: t("receiver.edit"),
       icon: <Pencil className={iconClasses} />,
       onClick: openEditReceiver,
       disabled: !selectedReceiver,
     },
     {
-      label: "Delete receiver",
+      label: t("receiver.delete"),
       icon: <Trash2 className={iconClasses} />,
       onClick: () => setIsDeleteConfirmOpen(true),
       disabled: !selectedReceiver,
       tone: "danger",
     },
     {
-      label: "Import from JSON",
+      label: t("receiver.import"),
       icon: <Upload className={iconClasses} />,
       onClick: () => fileInputRef.current?.click(),
       separated: true,
     },
     {
-      label: "Export to JSON",
+      label: t("receiver.export"),
       icon: <Download className={iconClasses} />,
       onClick: handleExport,
       disabled: !receivers.length,
@@ -194,8 +198,8 @@ const GeneralSection = () => {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <SelectField
             id="savedReceiver"
-            label="Saved receiver"
-            hint="Fills the address, email and GSTIN below."
+            label={t("general.savedReceiver")}
+            hint={t("general.savedReceiverHint")}
             icon={<Users className={iconClasses} />}
             wrapperClassName="flex-1"
             value={selectedReceiverId}
@@ -203,7 +207,9 @@ const GeneralSection = () => {
             {...emptyFieldGuard(receivers.length > 0)}
           >
             <option value="">
-              {receivers.length ? "Select a receiver" : "No receivers saved yet"}
+              {receivers.length
+                ? t("general.selectReceiver")
+                : t("general.noReceivers")}
             </option>
             {receivers.map((receiver) => (
               <option key={receiver.id} value={receiver.id}>
@@ -213,7 +219,7 @@ const GeneralSection = () => {
           </SelectField>
 
           <div className="sm:pb-6">
-            <Menu items={receiverMenuItems} label="Receiver actions" />
+            <Menu items={receiverMenuItems} label={t("receiver.actions")} />
 
             <input
               ref={fileInputRef}
@@ -230,7 +236,7 @@ const GeneralSection = () => {
         <TextField
           id="invoiceNumber"
           name="invoiceNumber"
-          label="Invoice Serial Number"
+          label={t("general.invoiceNumber")}
           placeholder="INV-001"
           icon={<Hash className={iconClasses} />}
           value={formData.invoiceNumber}
@@ -241,7 +247,7 @@ const GeneralSection = () => {
           id="invoiceDate"
           name="invoiceDate"
           type="date"
-          label="Invoice Date"
+          label={t("general.invoiceDate")}
           icon={<CalendarDays className={iconClasses} />}
           value={formData.invoiceDate}
           onChange={handleChange}
@@ -250,7 +256,7 @@ const GeneralSection = () => {
         <SelectField
           id="companyAddress"
           name="companyAddress"
-          label="Receiver Company Address"
+          label={t("general.address")}
           icon={<MapPin className={iconClasses} />}
           wrapperClassName="md:col-span-2"
           value={formData.companyAddress || ""}
@@ -258,7 +264,9 @@ const GeneralSection = () => {
           {...emptyFieldGuard(addressOptions.length > 0)}
         >
           <option value="">
-            {addressOptions.length ? "Select an address" : "Add a receiver first"}
+            {addressOptions.length
+              ? t("general.selectAddress")
+              : t("general.addReceiverFirst")}
           </option>
           {addressOptions.map((address) => (
             <option key={address} value={address}>
@@ -270,15 +278,17 @@ const GeneralSection = () => {
         <SelectField
           id="email"
           name="email"
-          label="Email (To)"
-          hint="Optional"
+          label={t("general.email")}
+          hint={t("general.optional")}
           icon={<AtSign className={iconClasses} />}
           value={formData.email || ""}
           onChange={handleChange}
           {...emptyFieldGuard(emailOptions.length > 0)}
         >
           <option value="">
-            {emailOptions.length ? "Not applicable" : "Add a receiver first"}
+            {emailOptions.length
+              ? t("general.notApplicable")
+              : t("general.addReceiverFirst")}
           </option>
           {emailOptions.map((email) => (
             <option key={email} value={email}>
@@ -290,15 +300,17 @@ const GeneralSection = () => {
         <SelectField
           id="gstin"
           name="gstin"
-          label="GSTIN"
-          hint="Optional"
+          label={t("general.gstin")}
+          hint={t("general.optional")}
           icon={<BadgeIndianRupee className={iconClasses} />}
           value={formData.gstin || ""}
           onChange={handleChange}
           {...emptyFieldGuard(gstinOptions.length > 0)}
         >
           <option value="">
-            {gstinOptions.length ? "Not applicable" : "Add a receiver first"}
+            {gstinOptions.length
+              ? t("general.notApplicable")
+              : t("general.addReceiverFirst")}
           </option>
           {gstinOptions.map((gstin) => (
             <option key={gstin} value={gstin}>
@@ -317,10 +329,12 @@ const GeneralSection = () => {
 
       <ConfirmDialog
         open={isDeleteConfirmOpen}
-        title="Delete this receiver?"
-        message={`${selectedReceiver?.name ?? "This receiver"} will be removed from this device, and the receiver fields on this invoice will be cleared.`}
+        title={t("receiver.deleteTitle")}
+        message={t("receiver.deleteMessage", {
+          name: selectedReceiver?.name ?? "",
+        })}
         icon={<Trash2 className="h-5 w-5" />}
-        confirmLabel="Delete receiver"
+        confirmLabel={t("receiver.deleteConfirm")}
         onConfirm={handleDeleteReceiver}
         onClose={() => setIsDeleteConfirmOpen(false)}
       />

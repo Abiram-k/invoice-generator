@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { fadeUp, staggerContainer } from "../utils/motion";
 import NotFoundArt from "../components/illustrations/NotFoundArt";
 
 const NotFound = () => {
+  const { t } = useTranslation();
   const COMPANY_NAME = import.meta.env.VITE_COMPANY_NAME;
 
   return (
@@ -19,11 +21,11 @@ const NotFound = () => {
         </motion.div>
 
         <motion.h1 variants={fadeUp} className="text-3xl font-semibold text-ink">
-          Page not found
+          {t("notFound.title")}
         </motion.h1>
 
         <motion.p variants={fadeUp} className="mt-2 text-sm text-muted">
-          The page you are looking for does not exist or has moved.
+          {t("notFound.message")}
         </motion.p>
 
         <motion.div variants={fadeUp} className="mt-6">
@@ -31,7 +33,7 @@ const NotFound = () => {
             to="/"
             className="inline-flex items-center justify-center rounded-xl bg-brand px-5 py-2.5 text-sm font-medium text-white dark:text-surface transition-colors duration-200 hover:bg-brand-strong focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/30"
           >
-            Back to invoice form
+            {t("notFound.action")}
           </Link>
         </motion.div>
 

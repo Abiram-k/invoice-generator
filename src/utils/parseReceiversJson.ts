@@ -13,13 +13,14 @@ const readString = (source: Record<string, unknown>, keys: string[]): string => 
 };
 
 // Reads an uploaded receivers file, accepting either an array or a { receivers: [] } wrapper.
+// Errors carry a translation key so the caller can show a localised message.
 export const parseReceiversJson = (raw: string): ReceiverInput[] => {
   let parsed: unknown;
 
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new Error("That file is not valid JSON.");
+    throw new Error("invalidJson");
   }
 
   const list = Array.isArray(parsed)
@@ -29,7 +30,7 @@ export const parseReceiversJson = (raw: string): ReceiverInput[] => {
       : null;
 
   if (!list) {
-    throw new Error("Expected an array of receivers.");
+    throw new Error("expectedArray");
   }
 
   const receivers = list
@@ -45,7 +46,7 @@ export const parseReceiversJson = (raw: string): ReceiverInput[] => {
     .filter((receiver) => receiver.name && receiver.address);
 
   if (!receivers.length) {
-    throw new Error("No receiver with a name and address was found.");
+    throw new Error("noReceiverFound");
   }
 
   return receivers;

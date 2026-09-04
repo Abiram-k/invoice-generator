@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { FileText } from "lucide-react";
 
 import InvoiceDownload from "../components/InvoiceStruct";
@@ -8,6 +9,7 @@ import { IGeneralData } from "../types/invoice-types";
 import { fadeUp } from "../utils/motion";
 
 const Invoice = () => {
+  const { t } = useTranslation();
   const { data } = useDataContext();
   const invoiceData = data as IGeneralData | undefined;
 
@@ -25,16 +27,16 @@ const Invoice = () => {
             <FileText className="h-7 w-7" />
           </div>
           <h1 className="text-xl font-semibold text-ink">
-            No invoice to preview
+            {t("preview.emptyTitle")}
           </h1>
           <p className="mt-2 text-sm text-muted">
-            Fill in the invoice form and generate it to see the preview here.
+            {t("preview.emptyMessage")}
           </p>
           <Link
             to="/"
             className="mt-6 inline-flex items-center justify-center rounded-xl bg-brand px-5 py-2.5 text-sm font-medium text-white dark:text-surface transition-colors duration-200 hover:bg-brand-strong focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/30"
           >
-            Go to invoice form
+            {t("preview.emptyAction")}
           </Link>
         </motion.div>
       </div>

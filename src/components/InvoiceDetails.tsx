@@ -1,5 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Calculator, Hash, IndianRupee, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
 import { useInvoiceStore } from "../store/useInvoiceStore";
 import { TextField, TextareaField } from "./Field";
 import { listItem } from "../utils/motion";
@@ -12,6 +14,7 @@ const rowGrid =
 const mobileLabel = "mb-1.5 block text-xs font-medium text-muted md:sr-only";
 
 const InvoiceDetails = () => {
+  const { t } = useTranslation();
   const { formData, setFormData } = useInvoiceStore();
   const rows = formData.invoiceDetails ?? [];
 
@@ -54,11 +57,11 @@ const InvoiceDetails = () => {
       {/* Column headers, desktop only. Each field keeps its own label for smaller screens. */}
       <div className={`${rowGrid} hidden px-3 pb-1 text-xs font-medium tracking-wide text-muted uppercase md:grid`}>
         <span>#</span>
-        <span>Description</span>
-        <span>Duty</span>
-        <span>Rate</span>
-        <span>Amount</span>
-        <span className="sr-only">Actions</span>
+        <span>{t("details.description_label")}</span>
+        <span>{t("details.duty")}</span>
+        <span>{t("details.rate")}</span>
+        <span>{t("details.amount")}</span>
+        <span className="sr-only">{t("details.actions")}</span>
       </div>
 
       <AnimatePresence initial={false}>
@@ -85,15 +88,15 @@ const InvoiceDetails = () => {
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-soft text-brand">
                 {index + 1}
               </span>
-              Item
+              {t("details.item")}
             </p>
 
             <TextareaField
               id={`description-${index}`}
-              label="Description"
+              label={t("details.description_label")}
               labelClassName={mobileLabel}
               rows={2}
-              placeholder="Service description"
+              placeholder={t("details.descriptionPlaceholder")}
               value={detail.description || ""}
               onChange={(e) =>
                 handleInvoiceDetailChange(index, "description", e.target.value)
@@ -102,7 +105,7 @@ const InvoiceDetails = () => {
 
             <TextField
               id={`duty-${index}`}
-              label="Duty"
+              label={t("details.duty")}
               labelClassName={mobileLabel}
               type="number"
               inputMode="numeric"
@@ -117,7 +120,7 @@ const InvoiceDetails = () => {
 
             <TextField
               id={`rate-${index}`}
-              label="Rate"
+              label={t("details.rate")}
               labelClassName={mobileLabel}
               type="number"
               inputMode="decimal"
@@ -132,7 +135,7 @@ const InvoiceDetails = () => {
 
             <TextField
               id={`amount-${index}`}
-              label="Amount"
+              label={t("details.amount")}
               labelClassName={mobileLabel}
               readOnly
               tabIndex={-1}
@@ -150,7 +153,7 @@ const InvoiceDetails = () => {
                 whileTap={{ scale: 0.92 }}
                 onClick={() => handleRemoveRow(index)}
                 disabled={rows.length <= 1}
-                aria-label={`Remove item ${index + 1}`}
+                aria-label={t("details.removeItem", { index: index + 1 })}
                 className="cursor-pointer rounded-lg p-2 text-muted transition-colors duration-200 hover:bg-danger-soft hover:text-danger disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-muted"
               >
                 <Trash2 className="h-4 w-4" />

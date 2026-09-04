@@ -2,6 +2,7 @@ import { MouseEvent } from "react";
 import { flushSync } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Moon, Sun } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useThemeStore } from "../store/useThemeStore";
 import { iconPop } from "../utils/motion";
@@ -16,6 +17,7 @@ const prefersReducedMotion = () =>
 
 // Theme switch that paints the new theme outward from the button.
 export const ThemeToggle = () => {
+  const { t } = useTranslation();
   const { theme, toggleTheme } = useThemeStore();
   const isDark = theme === "dark";
 
@@ -88,8 +90,8 @@ export const ThemeToggle = () => {
       whileHover={{ y: -1 }}
       whileTap={{ scale: 0.94 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
-      title={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      aria-label={isDark ? t("theme.toLight") : t("theme.toDark")}
+      title={isDark ? t("theme.toLight") : t("theme.toDark")}
       className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-line bg-card text-ink-soft shadow-sm transition-colors duration-200 hover:border-muted/40 hover:text-ink focus:outline-none focus-visible:ring-4 focus-visible:ring-brand/20"
     >
       <AnimatePresence mode="wait" initial={false}>
