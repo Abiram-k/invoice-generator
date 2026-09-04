@@ -108,42 +108,6 @@ export default function InvoiceForm() {
       return false;
     }
 
-    if (!formData.cgstAmount) {
-      toast.error("CGST Amount is required!");
-      errors.push("Tax Error");
-      return false;
-    }
-
-    if (!formData.cgstPercentage) {
-      toast.error("CGST Percentage is required!");
-      errors.push("Tax Error");
-      return false;
-    }
-
-    if (!formData.sgstAmount) {
-      toast.error("SGST Amount is required!");
-      errors.push("Tax Error");
-      return false;
-    }
-
-    if (!formData.sgstPercentage) {
-      toast.error("SGST Percentage is required!");
-      errors.push("Tax Error");
-      return false;
-    }
-
-    if (!formData.igstAmount) {
-      toast.error("IGST Amount is required!");
-      errors.push("Tax Error");
-      return false;
-    }
-
-    if (!formData.igstPercentage) {
-      toast.error("IGST Percentage is required!");
-      errors.push("Tax Error");
-      return false;
-    }
-
     if (!formData.totalTaxableAmount) {
       toast.error("Total Taxable Amount is required!");
       errors.push("Tax Error");

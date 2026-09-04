@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
-import { Calculator, Check, IndianRupee, Info, Percent } from "lucide-react";
+import { Calculator, Check, Eraser, IndianRupee, Info, Percent } from "lucide-react";
+import toast from "react-hot-toast";
 import { useInvoiceStore } from "../store/useInvoiceStore";
 import { TextField } from "./Field";
 import { Button } from "./Button";
@@ -61,6 +62,31 @@ const TaxSection = () => {
     setFormData({ [name]: value });
   };
 
+  const isGstApplied = Boolean(
+    formData.cgstPercentage?.trim() ||
+      formData.sgstPercentage?.trim() ||
+      formData.igstPercentage?.trim()
+  );
+
+  // Clears GST from the invoice and drops it back out of the payable totals.
+  const handleRemoveGst = () => {
+    const clearedGst = {
+      cgstPercentage: "",
+      sgstPercentage: "",
+      igstPercentage: "",
+      cgstAmount: "",
+      sgstAmount: "",
+      igstAmount: "",
+    };
+
+    setFormData({
+      ...clearedGst,
+      ...calculateInvoiceTotals({ ...formData, ...clearedGst }),
+    });
+
+    toast.success("GST removed from this invoice.");
+  };
+
   // Applies the standard 9% CGST and SGST split, then refreshes every dependent total.
   const handleAutoCalcuate = () => {
     const percentages = {
@@ -82,7 +108,9 @@ const TaxSection = () => {
     <div className="space-y-5">
       <div className="relative z-30 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-brand-soft/60 px-4 py-3">
         <p className="text-sm text-ink-soft">
-          GST is calculated from the line items and updates as you type.
+          {isGstApplied
+            ? "GST is applied and recalculates as you edit the line items."
+            : "No GST on this invoice yet. Apply it to add CGST and SGST to the payable total."}
         </p>
 
         <div className="flex items-center gap-2">
@@ -94,10 +122,10 @@ const TaxSection = () => {
                 </span>
                 Each line item contributes duty x rate. Those amounts add up to the
                 total taxable amount, and the duty counts add up to the tax duty.
-                CGST and SGST are {formData.cgstPercentage || "0"}% and{" "}
-                {formData.sgstPercentage || "0"}% of the taxable amount, IGST is{" "}
-                {formData.igstPercentage || "0"}%. The payable total is the taxable
-                amount plus all three.
+                Calculate GST adds CGST and SGST at 9% each of that taxable amount
+                (IGST 0%), so the payable total becomes the taxable amount plus GST.
+                Remove GST clears it and the payable falls back to the taxable amount
+                alone.
               </>
             }
           >
@@ -138,6 +166,28 @@ const TaxSection = () => {
           >
             {justCalculated ? "Calculated" : "Calculate GST"}
           </Button>
+
+          <AnimatePresence initial={false}>
+            {isGstApplied ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, width: 0 }}
+                animate={{ opacity: 1, scale: 1, width: "auto" }}
+                exit={{ opacity: 0, scale: 0.9, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="danger"
+                  onClick={handleRemoveGst}
+                  icon={<Eraser className="h-4 w-4" />}
+                >
+                  Remove GST
+                </Button>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </div>
       </div>
 
