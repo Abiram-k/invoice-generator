@@ -138,6 +138,23 @@ const GeneralSection = () => {
     }
   };
 
+  // Sends the user to the add receiver modal when a field has nothing to choose from yet.
+  const emptyFieldGuard = (hasOptions: boolean) =>
+    hasOptions
+      ? {}
+      : {
+          onMouseDown: (event: React.MouseEvent<HTMLSelectElement>) => {
+            event.preventDefault();
+            openAddReceiver();
+          },
+          onKeyDown: (event: React.KeyboardEvent<HTMLSelectElement>) => {
+            if (["Enter", " ", "ArrowDown", "ArrowUp"].includes(event.key)) {
+              event.preventDefault();
+              openAddReceiver();
+            }
+          },
+        };
+
   const receiverMenuItems: MenuItem[] = [
     {
       label: "Add receiver",
@@ -183,6 +200,7 @@ const GeneralSection = () => {
             wrapperClassName="flex-1"
             value={selectedReceiverId}
             onChange={handleReceiverChange}
+            {...emptyFieldGuard(receivers.length > 0)}
           >
             <option value="">
               {receivers.length ? "Select a receiver" : "No receivers saved yet"}
@@ -237,8 +255,11 @@ const GeneralSection = () => {
           wrapperClassName="md:col-span-2"
           value={formData.companyAddress || ""}
           onChange={handleChange}
+          {...emptyFieldGuard(addressOptions.length > 0)}
         >
-          <option value="">Select an address</option>
+          <option value="">
+            {addressOptions.length ? "Select an address" : "Add a receiver first"}
+          </option>
           {addressOptions.map((address) => (
             <option key={address} value={address}>
               {toSingleLine(address)}
@@ -254,8 +275,11 @@ const GeneralSection = () => {
           icon={<AtSign className={iconClasses} />}
           value={formData.email || ""}
           onChange={handleChange}
+          {...emptyFieldGuard(emailOptions.length > 0)}
         >
-          <option value="">Not applicable</option>
+          <option value="">
+            {emailOptions.length ? "Not applicable" : "Add a receiver first"}
+          </option>
           {emailOptions.map((email) => (
             <option key={email} value={email}>
               {email}
@@ -271,8 +295,11 @@ const GeneralSection = () => {
           icon={<BadgeIndianRupee className={iconClasses} />}
           value={formData.gstin || ""}
           onChange={handleChange}
+          {...emptyFieldGuard(gstinOptions.length > 0)}
         >
-          <option value="">Not applicable</option>
+          <option value="">
+            {gstinOptions.length ? "Not applicable" : "Add a receiver first"}
+          </option>
           {gstinOptions.map((gstin) => (
             <option key={gstin} value={gstin}>
               {gstin}
