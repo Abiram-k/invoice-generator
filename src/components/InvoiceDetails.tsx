@@ -3,22 +3,11 @@ import { Calculator, Hash, IndianRupee, Trash2 } from "lucide-react";
 import { useInvoiceStore } from "../store/useInvoiceStore";
 import { TextField, TextareaField } from "./Field";
 import { listItem } from "../utils/motion";
+import { calculateInvoiceTotals } from "../utils/invoiceTotals";
 
 const rowGrid =
   "grid grid-cols-1 gap-4 md:grid-cols-[2.5rem_minmax(0,2.4fr)_1fr_1fr_1fr_2.5rem] md:items-start md:gap-3";
 
-const clearedTotals = {
-  totalTaxableAmount: "",
-  taxDuty: "",
-  cgstPercentage: "",
-  cgstAmount: "",
-  sgstPercentage: "",
-  sgstAmount: "",
-  igstPercentage: "",
-  igstAmount: "",
-  totalInvoiceInWords: "",
-  totalInvoicePayable: "",
-};
 
 const mobileLabel = "mb-1.5 block text-xs font-medium text-muted md:sr-only";
 
@@ -42,16 +31,21 @@ const InvoiceDetails = () => {
       return updatedDetail;
     });
 
-    setFormData({ invoiceDetails: updatedDetails, ...clearedTotals });
+    setFormData({
+      invoiceDetails: updatedDetails,
+      ...calculateInvoiceTotals({ ...formData, invoiceDetails: updatedDetails }),
+    });
   };
 
-  // Removes a single line item and clears the totals that depended on it.
+  // Removes a single line item and recalculates the totals that depended on it.
   const handleRemoveRow = (index: number) => {
     if (rows.length <= 1) return;
 
+    const updatedDetails = rows.filter((_, i) => i !== index);
+
     setFormData({
-      invoiceDetails: rows.filter((_, i) => i !== index),
-      ...clearedTotals,
+      invoiceDetails: updatedDetails,
+      ...calculateInvoiceTotals({ ...formData, invoiceDetails: updatedDetails }),
     });
   };
 

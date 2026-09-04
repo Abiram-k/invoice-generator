@@ -4,7 +4,7 @@ import { Calculator, Check, IndianRupee, Percent } from "lucide-react";
 import { useInvoiceStore } from "../store/useInvoiceStore";
 import { TextField } from "./Field";
 import { Button } from "./Button";
-import { numberToWords } from "../utils/numberToWords";
+import { calculateInvoiceTotals } from "../utils/invoiceTotals";
 import { flashRing, iconPop } from "../utils/motion";
 
 type TaxFieldName =
@@ -48,59 +48,17 @@ const TaxSection = () => {
     setFormData({ [name]: value });
   };
 
+  // Applies the standard 9% CGST and SGST split, then refreshes every dependent total.
   const handleAutoCalcuate = () => {
-    if (!formData || !formData.invoiceDetails) return;
-
-    let { total, duties } = formData.invoiceDetails.reduce(
-      (acc, details) => {
-        if (details && details.amount && details.duty) {
-          let currentDutyAmount = parseFloat(details.amount);
-          let currentDuty = parseFloat(details.duty);
-          return {
-            duties: acc.duties + (isNaN(currentDuty) ? 0 : currentDuty),
-            total:
-              acc.total + (isNaN(currentDutyAmount) ? 0 : currentDutyAmount),
-          };
-        }
-        return acc;
-      },
-      { total: 0, duties: 0 }
-    );
-
-    const cgstPercentage = 9;
-    const sgstPercentage = 9;
-    const igstPercentage = 0;
-
-    let cgstAmount = String(((total * cgstPercentage) / 100).toFixed(2));
-    let sgstAmount = String(((total * sgstPercentage) / 100).toFixed(2));
-    let igstAmount = String(((total * igstPercentage) / 100).toFixed(2));
-
-    let totalTaxableAmount = String(total.toFixed(2));
-    let taxDuty = String(duties);
-
-    let totalInvoicePayable =
-      parseFloat(totalTaxableAmount) +
-      parseFloat(cgstAmount) +
-      parseFloat(sgstAmount) +
-      parseFloat(igstAmount);
-
-    let totalInvoiceInWords = numberToWords(Math.round(totalInvoicePayable));
-
-    totalInvoiceInWords =
-      totalInvoiceInWords.charAt(0).toUpperCase() +
-      totalInvoiceInWords.slice(1);
+    const percentages = {
+      cgstPercentage: "9",
+      sgstPercentage: "9",
+      igstPercentage: "0",
+    };
 
     setFormData({
-      totalTaxableAmount,
-      taxDuty,
-      cgstPercentage: String(cgstPercentage),
-      cgstAmount,
-      sgstPercentage: String(sgstPercentage),
-      sgstAmount,
-      igstPercentage: String(igstPercentage),
-      igstAmount,
-      totalInvoiceInWords,
-      totalInvoicePayable: totalInvoicePayable.toFixed(2),
+      ...percentages,
+      ...calculateInvoiceTotals({ ...formData, ...percentages }),
     });
 
     setJustCalculated(true);
