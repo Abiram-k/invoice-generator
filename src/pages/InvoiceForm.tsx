@@ -21,8 +21,8 @@ import TaxSection from "../components/TaxSection";
 import SectionCard from "../components/SectionCard";
 import ConfirmDialog from "../components/ConfirmDialog";
 import ThemeToggle from "../components/ThemeToggle";
+import HeaderClock from "../components/HeaderClock";
 import {
-  InvoiceCardArt,
   LineItemsCardArt,
   ReceiverCardArt,
 } from "../components/illustrations/cardArt";
@@ -187,11 +187,9 @@ export default function InvoiceForm() {
         {/* Header */}
         <motion.header
           variants={fadeUp}
-          className="relative overflow-hidden rounded-card border border-line bg-card/80 p-5 shadow-sm backdrop-blur-[2px] sm:p-7"
+          className="rounded-card border border-line bg-card/80 p-5 shadow-sm backdrop-blur-[2px] sm:p-7"
         >
-          <InvoiceCardArt className="pointer-events-none absolute -top-8 right-24 w-40 text-brand opacity-[0.07] sm:w-48 dark:opacity-[0.12]" />
-
-          <div className="relative flex flex-col gap-6">
+          <div className="flex flex-col gap-6">
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <AnimatePresence mode="wait" initial={false}>
                 {showCompanyLogo ? (
@@ -233,7 +231,8 @@ export default function InvoiceForm() {
                 </p>
               </div>
 
-              <div className="ml-auto flex items-center gap-2">
+              <div className="ml-auto flex items-center gap-2 sm:gap-3">
+                <HeaderClock />
                 <ThemeToggle />
                 <FullscreenToggle />
               </div>
