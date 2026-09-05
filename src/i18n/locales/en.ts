@@ -16,6 +16,9 @@ export const en = {
     enter: "Enter fullscreen",
     exit: "Exit fullscreen",
   },
+  install: {
+    action: "Install app",
+  },
   header: {
     company: "Company",
     invoiceType: "Invoice Type",

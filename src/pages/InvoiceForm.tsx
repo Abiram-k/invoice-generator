@@ -29,6 +29,7 @@ import {
   ReceiverCardArt,
 } from "../components/illustrations/cardArt";
 import FullscreenToggle from "../components/FullscreenToggle";
+import InstallButton from "../components/InstallButton";
 import { Button } from "../components/Button";
 import { SelectField } from "../components/Field";
 
@@ -236,6 +237,7 @@ export default function InvoiceForm() {
 
               <div className="ml-auto flex items-center gap-2 sm:gap-3">
                 <HeaderClock />
+                <InstallButton />
                 <LanguageToggle />
                 <ThemeToggle />
                 <FullscreenToggle />

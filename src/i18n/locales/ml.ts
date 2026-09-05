@@ -18,6 +18,9 @@ export const ml: Translation = {
     enter: "പൂർണ്ണ സ്ക്രീനിലേക്ക്",
     exit: "പൂർണ്ണ സ്ക്രീനിൽ നിന്ന് പുറത്ത്",
   },
+  install: {
+    action: "ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക",
+  },
   header: {
     company: "കമ്പനി",
     invoiceType: "ഇൻവോയ്സ് തരം",
