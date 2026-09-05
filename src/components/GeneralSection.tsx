@@ -3,6 +3,8 @@ import {
   AtSign,
   BadgeIndianRupee,
   CalendarDays,
+  ClipboardPaste,
+  Copy,
   Download,
   Hash,
   MapPin,
@@ -20,10 +22,11 @@ import { useReceiverStore } from "../store/useReceiverStore";
 import { SelectField, TextField } from "./Field";
 import { Menu, MenuItem } from "./Menu";
 import { ReceiverModal } from "./ReceiverModal";
+import { PasteReceiversModal } from "./PasteReceiversModal";
 import ConfirmDialog from "./ConfirmDialog";
 import { Receiver } from "../types/receiver";
 import { findReceiverByValues, toReceiversFile, toSingleLine } from "../utils/receiver";
-import { parseReceiversJson } from "../utils/parseReceiversJson";
+import { useImportReceivers } from "../hooks/useImportReceivers";
 import { saveAs } from "file-saver";
 
 const iconClasses = "h-4 w-4";
@@ -44,8 +47,10 @@ const buildOptions = (values: (string | undefined)[], current?: string) => {
 const GeneralSection = () => {
   const { t } = useTranslation();
   const { formData, setFormData } = useInvoiceStore();
-  const { receivers, addReceivers, removeReceiver } = useReceiverStore();
+  const { receivers, removeReceiver } = useReceiverStore();
+  const importReceivers = useImportReceivers();
   const [isReceiverModalOpen, setIsReceiverModalOpen] = useState(false);
+  const [isPasteModalOpen, setIsPasteModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [editingReceiver, setEditingReceiver] = useState<Receiver | undefined>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -128,17 +133,21 @@ const GeneralSection = () => {
     if (!file) return;
 
     try {
-      const imported = parseReceiversJson(await file.text());
-      const count = addReceivers(imported);
-      toast.success(t("toast.imported", { count }));
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? t(`toast.${error.message}`, { defaultValue: t("toast.importFailed") })
-          : t("toast.importFailed")
-      );
+      importReceivers(await file.text());
+    } catch {
+      toast.error(t("toast.importFailed"));
     } finally {
       e.target.value = "";
+    }
+  };
+
+  // Copies the saved receivers as JSON so they can be pasted on another device.
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(toReceiversFile(receivers));
+      toast.success(t("toast.copied", { count: receivers.length }));
+    } catch {
+      toast.error(t("toast.copyFailed"));
     }
   };
 
@@ -183,6 +192,17 @@ const GeneralSection = () => {
       icon: <Upload className={iconClasses} />,
       onClick: () => fileInputRef.current?.click(),
       separated: true,
+    },
+    {
+      label: t("receiver.paste"),
+      icon: <ClipboardPaste className={iconClasses} />,
+      onClick: () => setIsPasteModalOpen(true),
+    },
+    {
+      label: t("receiver.copy"),
+      icon: <Copy className={iconClasses} />,
+      onClick: handleCopy,
+      disabled: !receivers.length,
     },
     {
       label: t("receiver.export"),
@@ -319,6 +339,11 @@ const GeneralSection = () => {
           ))}
         </SelectField>
       </div>
+
+      <PasteReceiversModal
+        open={isPasteModalOpen}
+        onClose={() => setIsPasteModalOpen(false)}
+      />
 
       <ReceiverModal
         open={isReceiverModalOpen}
